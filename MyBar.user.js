@@ -84,6 +84,7 @@ function __start(){
 				
 				AtKit.message(elements, function(){
 					AtKit.lib()('#facebox a:first').focus();
+					AtKit.call('applyCSS', '#searchElementsHolder a');
 				});
 				
 				
@@ -98,9 +99,10 @@ function __start(){
 			function(dialogs, functions){
 				settings.searchType = "a";
 				var elements = AtKit.call('locateElements', AtKit.lib()(settings.searchType));
-				
+				console.log(settings.searchType);
 				AtKit.message(elements, function(){
 					AtKit.lib()('#facebox a:first').focus();
+					AtKit.call('applyCSS', '#searchElementsHolder a');
 				});				
 			},
 			testDialogs,
@@ -108,16 +110,21 @@ function __start(){
 		);
 		
 		// Add function to AtKit.
+		
+		AtKit.addFn('applyCSS', function(c){ AtKit.lib()(c).attr('style', AtKit.__CSS[c]); });
+		
 		AtKit.addFn('locateElements', function(elements){
-			var output = AtKit.lib()("<div>");
+			var output = AtKit.lib()("<div>", { 'id': 'searchElementsHolder' });
 			
-			var inputText = AtKit.lib()('<input />', { 'type': 'text',  'id': 'asTypeInput' });
+			var inputText = AtKit.lib()('<input />', { 'type': 'text',  'id': 'asTypeInput', 'disabled':'disabled' });
 			
 			if(elements.length == 0) return AtKit.lib()("<p>", { html: "No elements found" });
 			
 			output.append( inputText );
 			
 			console.log(elements);
+			
+			var x = 1;
 			
 			AtKit.lib().each(elements, function(i, v){
 				var newEl = AtKit.lib()('<a>', { href: '#' });
@@ -127,7 +134,7 @@ function __start(){
 				// Check if el is ok
 				if(content.text() == "") return;
 				
-				newEl.html( (i+1) + ". " + content.text() );
+				newEl.html( (x) + ". " + content.text() );
 				
 				newEl.find('img').remove();
 				
@@ -136,19 +143,27 @@ function __start(){
 					
 					if(AtKit.lib()(mainEl).get(0).tagName == "A") {
 						var link = AtKit.lib()(mainEl).attr('href');
+						
+						window.location = link;
 					}
 				});
 				
 				settings.storage.elementStorage.push( mainEl );
 				
 				output.append( AtKit.lib()('<p>').html(newEl.wrap("<p>").get(0)) );
+				
+				x++;
 			});
 			
 			return output;
 		});
 		
-		globalFunctions.bindKeypress();
 		
+		// Setup
+		globalFunctions.bindKeypress();
+		AtKit.setCSS('#searchElementsHolder a', 'font-size: 18px');
+		
+		// Run
 		AtKit.render();
 	}(AtKit));
 
