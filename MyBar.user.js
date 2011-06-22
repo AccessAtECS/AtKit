@@ -62,7 +62,6 @@ function __start(){
 							});
 						
 							settings.storage.elementStorage = settings.storage.searchElementStorage;
-							console.log(settings.storage.elementStorage);
 						
 							var elements = AtKit.call('locateElements', settings.storage.elementStorage);
 							AtKit.message(elements, function(){ AtKit.lib()('#facebox a:first').focus(); });
@@ -148,8 +147,7 @@ function __start(){
 			if(elements.length == 0) return AtKit.lib()("<p>", { html: "No elements found" });
 			
 			output.append( inputText );
-			
-			console.log(elements);
+
 			
 			var x = 1;
 			
@@ -166,7 +164,6 @@ function __start(){
 				newEl.find('img').remove();
 				
 				newEl.bind('click', function(){
-					console.log(settings.storage.elementStorage);
 					
 					var tagName = AtKit.lib()(mainEl).get(0).tagName;
 					
@@ -177,6 +174,9 @@ function __start(){
 					}
 					
 					if(tagName == "H1" || tagName == "H2" || tagName == "H3" || tagName == "H4" || tagName == "H5"){
+						var offset = mainEl.offset();
+						AtKit.lib().scrollTo(offset.top - 80, 800);
+						
 						mainEl.css("background-color", "red");
 						mainEl.animate({ opacity: 0.1 }, 500, function() { 
 							mainEl.animate({ opacity: 1}, 500, function(){
@@ -204,6 +204,7 @@ function __start(){
 		// Setup
 		globalFunctions.bindKeypress();
 		AtKit.setCSS('#searchElementsHolder a', 'font-size: 18px');
+		AtKit.addScript("http://localhost/bar/scrollto.js", function(){});
 		
 		// Run
 		AtKit.render();
