@@ -375,7 +375,7 @@ var AtKit = (function (window) {
 	// Attach a button to the toolbar
 	// Assets should be an object containing any dialogs that will be shown with facebox, as well a
 	API.addButton = function(identifier, icon, action, dialogs, functions){
-		API.__env.buttons[identifier] = { 'icon': icon, 'action': action, 'dialogs': dialogs, 'functions': functions };
+		API.__env.buttons[identifier] = { 'icon': icon, 'action': function(){ action(); return false; }, 'dialogs': dialogs, 'functions': functions };
 		
 		if(private.__invoked){
 			API.lib()( renderButton(identifier) ).appendTo('#sbar');
