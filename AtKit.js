@@ -18,7 +18,7 @@ var AtKit = (function (window) {
 		__version: 2.0, // Version.
 		__build: 39, // Build.
 		__assetURL: "http://access.ecs.soton.ac.uk/ToolBar/", // Load AtKit assets from here.
-		__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
+		__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
 		__cycle: "ALPHA", // Release cycle for this version of AtKit.
 		__channel: "echo", // Release channel we're running in.
 		__invoked: false, // Is the framework already loaded?
@@ -140,7 +140,7 @@ var AtKit = (function (window) {
 			API.__env.lib = jQuery.noConflict();
 			
 			// Load facebox.
-			API.addScript(private.__assetURL + "channels/" + private.__channel + "/facebox.js", function(){});
+			API.addScript("http://localhost/bar/facebox.js", function(){});
 			
 			// Once the document is ready broadcast ready event.
 			API.lib()(document).ready(function(){ broadcastLoaded(); });
@@ -406,14 +406,15 @@ var AtKit = (function (window) {
 	
 	// Show message not stored in a dialog object.
 	API.message = function(data, callback){
+		API.lib()('#facebox .content').html("");
 		API.lib().facebox(data);
 		
 		if(typeof callback != "null" && typeof callback != "undefined") callback();
 	}
 	
 	// Call a global function
-	API.call = function(identifier){
-		return API.__env.global.fn[identifier]();
+	API.call = function(identifier, arg){
+		return API.__env.global.fn[identifier](arg);
 	}
 	
 	// Return library.
