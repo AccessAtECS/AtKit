@@ -16,7 +16,7 @@ var AtKit = (function (window) {
 	// Internal properties
 	var private = {
 		__version: 2.0, // Version.
-		__build: 39, // Build.
+		__build: 45, // Build.
 		__assetURL: "http://access.ecs.soton.ac.uk/ToolBar/", // Load AtKit assets from here.
 		__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
 		__cycle: "ALPHA", // Release cycle for this version of AtKit.
@@ -40,8 +40,7 @@ var AtKit = (function (window) {
 		},
 		buttons: {}, // Object for every button. Object with the layout: { identifier: { function: function(), tip: 'tip', state: 'enabled' } }
 		languageMap: {}, // Translations
-		siteFixes: [], // Contains object for each site {regex: '/regex/', function: function()} //
-		lib: '' // Library used for the Toolbar
+		siteFixes: [] // Contains object for each site {regex: '/regex/', function: function()} //
 	}	
 	
 	// API object. Everything in here becomes public after AtKit has finished executing
@@ -65,8 +64,11 @@ var AtKit = (function (window) {
 			'allowclose': false, // Enable the close button
 			'allowreset': false, // Allow the page reset button
 			"logoURL": '', "name": '' 
-		}
+		},
+		$: '' // Library used for the Toolbar
 	}
+	
+	var $ = '';
 	
 	//////////////////////////////
 	// Private internal methods //
@@ -105,7 +107,9 @@ var AtKit = (function (window) {
 				jQversion = parseFloat($().jquery.match(/\d\.\d/));
 				if(private.__debug) console.log('jQuery already loaded, v' + jQversion);
 			
-				if(jQversion == 1.4) {
+				if(jQversion > 1.4) {
+					$ = window.$;
+					API.$ = $;
 					broadcastLoaded();
 				return;
 				}
@@ -137,13 +141,14 @@ var AtKit = (function (window) {
 		} else {
 			// Bind jQuery to internal namespace.
 			// From now on, to access jQuery, we use API.lib() (binds to $).
-			API.__env.lib = jQuery.noConflict();
+			$ = jQuery.noConflict();
+			API.$ = $;
 			
 			// Load facebox.
 			API.addScript(private.__assetURL + "channels/" + private.__channel + "/facebox.js", function(){});
 			
 			// Once the document is ready broadcast ready event.
-			API.lib()(document).ready(function(){ broadcastLoaded(); });
+			$(document).ready(function(){ broadcastLoaded(); });
 		}
 	}
 	
@@ -180,7 +185,7 @@ var AtKit = (function (window) {
 		b = b.replace(/\(SRC\)/ig, API.__env.buttons[ident].icon);
 		
 		// jQuery'ify
-		b = API.lib()(b);
+		b = $(b);
 		
 		// Bind the click event
 		b.children('a').bind('click', { button: API.__env.buttons[ident] }, function(button){
@@ -189,11 +194,11 @@ var AtKit = (function (window) {
 		
 		// Emulate CSS active, hover, etc.
 		b.children('a').bind('focus', function(){
-			API.lib()(this).attr('style', API.lib()(this).attr('style') + API.__CSS[".at-btn a:active"]);
+			$(this).attr('style', $(this).attr('style') + API.__CSS[".at-btn a:active"]);
 		});
 		
 		b.children('a').bind('focusout', function(){
-			API.lib()(this).attr('style', API.__CSS[".at-btn a"]);
+			$(this).attr('style', API.__CSS[".at-btn a"]);
 		});
 		
 		// Commit the HTML
@@ -210,16 +215,16 @@ var AtKit = (function (window) {
 		if( private.__invoked ) return;
 		
 		// Insert the bar holder 
-		API.lib()( API.lib()('<div>', { id: 'sbar' }) ).insertAfter("#sbarGhost");
+		$( $('<div>', { id: 'sbar' }) ).insertAfter("#sbarGhost");
 		
 		// Insert the logo.
-		API.lib()(
-			API.lib()("<a>", { id: 'sbarlogo', click: function(){ showAbout() } }).append(
-				API.lib()("<img>", { "src": API.settings.logoURL, "align": "left", "border": "0", "title": API.settings.name + "Logo", "title": "About", "style": "float:left;margin-top:10px;" }) 
+		$(
+			$("<a>", { id: 'sbarlogo', click: function(){ showAbout() } }).append(
+				$("<img>", { "src": API.settings.logoURL, "align": "left", "border": "0", "title": API.settings.name + "Logo", "title": "About", "style": "float:left;margin-top:10px;" }) 
 			)
 		).appendTo('#sbar');
 		
-		API.lib()("<img>", { "src": private.__assetURL + "stat.php?channel=" + private.__channel + "&version=" + private.__version + "." + private.__build }).appendTo("#sbar");		
+		$("<img>", { "src": private.__assetURL + "stat.php?channel=" + private.__channel + "&version=" + private.__version + "." + private.__build }).appendTo("#sbar");		
 				
 				
 				
@@ -235,7 +240,7 @@ var AtKit = (function (window) {
 			
 		// Add buttons.
 		for(b in API.__env.buttons){
-			API.lib()( renderButton(b) ).appendTo('#sbar');
+			$( renderButton(b) ).appendTo('#sbar');
 		}
 		
 		// Apply CSS
@@ -245,10 +250,10 @@ var AtKit = (function (window) {
 		siteFixes();
 		
 		// IE 6 fix
-		if ( API.lib().browser == "msie" && API.lib().browser.version == 6 ) {
-			API.lib()('#sbarGhost').remove();
+		if ( $.browser == "msie" && API.lib().browser.version == 6 ) {
+			$('#sbarGhost').remove();
 		} else {
-			API.lib()('#sbarGhost').html("&nbsp;");
+			$('#sbarGhost').html("&nbsp;");
 		}
 		
 		// Set state to invoked.
@@ -256,22 +261,21 @@ var AtKit = (function (window) {
 		
 		// Set unload function
 		API.__env.global.unloadFn['default'] = function(){
-			API.lib()('#sbarGhost').remove();
-			API.lib()('#sbar').remove();
+			$('#sbarGhost').remove();
+			$('#sbar').remove();
 		}
 	}
 	
 	// Apple the CSS rules that have been defined
 	function applyCSS(){
 		for(c in API.__CSS){
-			API.lib()(c).attr('style', API.__CSS[c]);
+			$(c).attr('style', API.__CSS[c]);
 		}
 	}
 	
 	// Shut down the toolbar
 	function stop(){
-		
-		
+
 		// Run unload functions
 		for(f in API.__env.global.unloadFn){
 			API.__env.global.unloadFn[f]();
@@ -352,7 +356,7 @@ var AtKit = (function (window) {
 	// Attach a JS file to the current document using jQuery, or if not loaded, the native function we have.
 	API.addScript = function(url, callback){
 		if(typeof jQuery != "undefined"){
-			API.lib().getScript(url, function() { callback() });
+			$.getScript(url, function() { callback() });
 		} else {
 			attachJS("", url);
 		}
@@ -378,7 +382,7 @@ var AtKit = (function (window) {
 		API.__env.buttons[identifier] = { 'icon': icon, 'action': action, 'dialogs': dialogs, 'functions': functions };
 		
 		if(private.__invoked){
-			API.lib()( renderButton(identifier) ).appendTo('#sbar');
+			$( renderButton(identifier) ).appendTo('#sbar');
 		}
 	}
 	
@@ -389,24 +393,24 @@ var AtKit = (function (window) {
 		if(private.__invoked){
 			if(private.__debug) console.log('remove button ' + identifier);
 			// If we've already been rendered we need to remove it from the DOM, too.
-			API.lib()("#at-btn-" + identifier).remove();
+			$("#at-btn-" + identifier).remove();
 		}
 	}	
 	
 	// Pass in a dialog and we'll format it and show to the users.
 	API.show = function(dialog, callback){
-		dialog = API.lib()("<div>", { "class": "userDialog" }).append(
-			API.lib()('<h2>', { 'text': dialog.title }),
-			API.lib()("<p>", { 'text': dialog.body })
+		dialog = $("<div>", { "class": "userDialog" }).append(
+			$('<h2>', { 'text': dialog.title }),
+			$("<p>", { 'text': dialog.body })
 		);
 		
-		API.lib().facebox(dialog);
+		$.facebox(dialog);
 		if(typeof callback != "null" && typeof callback != "undefined") callback();
 	}
 	
 	// Show message not stored in a dialog object.
 	API.message = function(data, callback){
-		API.lib().facebox(data);
+		$.facebox(data);
 		
 		if(typeof callback != "null" && typeof callback != "undefined") callback();
 	}
@@ -418,8 +422,8 @@ var AtKit = (function (window) {
 	
 	// Return library.
 	API.lib = function(){
-		if(typeof API.__env.lib == 'function') return API.__env.lib;
-		if(typeof API.__env.lib == 'string' && typeof window.$ == 'function') return window.$;
+		if(typeof $ == 'function') return $;
+		if(typeof $ == 'string' && typeof window.$ == 'function') return window.$;
 		return false;
 	}
 	
