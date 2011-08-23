@@ -16,8 +16,9 @@ var AtKit = (function (window) {
 	// Internal properties
 	var private = {
 		__version: 2.0, // Version.
-		__build: 57, // Build.
-		__baseURL: "http://access.ecs.soton.ac.uk/ToolBar/", // Load AtKit assets from here.
+		__build: 69, // Build.
+		__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
+		__APIURL: "http://a.atbar.org/", // API endpoint
 		__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
 		__cycle: "alpha", // Release cycle for this version of AtKit.
 		__channel: "echo", // Release channel we're running in.
@@ -28,12 +29,15 @@ var AtKit = (function (window) {
 		__errorMessageTimeout: 2000 // Time before error message will disapear.
 	}
 	
-	private.__assetURL = private.__baseURL + "channels/" + private.__channel + "/presentation/";
+	private.__baseURL += private.__channel;
+	private.__assetURL = private.__baseURL + "/presentation/";
+	
 	private.__aboutDialog = {
 		HTML: "",
 		CSS: {
 			"#ATKFBAbout" : "font-family: Helvetica, Verdana, Arial, sans-serif;font-size:12px;color: #364365;",
-			"#ATKFBAbout h1" : "border-bottom: 1px solid #DDD; font-size: 16px; margin-bottom: 5px; margin-top: 10px; padding-bottom: 5px;"
+			"#ATKFBAbout h1" : "border-bottom: 1px solid #DDD; font-size: 16px; margin-bottom: 5px; margin-top: 10px; padding-bottom: 5px;",
+			"#ATKFBAbout p#ATKFBAboutFooter" : "border-top: 1px solid #DDD; padding-top:10px;margin-top:25px;"
 		}
 	}
 	
@@ -157,7 +161,7 @@ var AtKit = (function (window) {
 			API.$ = $;
 			
 			// Load facebox.
-			API.addScript(private.__baseURL + "channels/" + private.__channel + "/facebox.js", function(){});
+			API.addScript(private.__baseURL + "/facebox.js", function(){});
 			
 			// Once the document is ready broadcast ready event.
 			$(document).ready(function(){ broadcastLoaded(); });
@@ -236,18 +240,18 @@ var AtKit = (function (window) {
 			)
 		).appendTo('#sbar');
 		
-		$("<img>", { "src": private.__baseURL + "stat.php?channel=" + private.__channel + "&version=" + private.__version + "." + private.__build }).appendTo("#sbar");		
+		$("<img>", { "src": private.__APIURL + "stat.php?channel=" + private.__channel + "&version=" + private.__version + "." + private.__build }).appendTo("#sbar");		
 				
 				
 				
 		// add the reset button (if we have been told to use this)
 		if( API.settings.allowreset ){
-			API.addButton('atkit-reset', private.__baseURL + '/presentation/images/reset.png', function(){ location.reload(true) }, {}, {});
+			API.addButton('atkit-reset', private.__assetURL + 'images/reset.png', function(){ location.reload(true) }, {}, {});
 		}
 			
 		// add the close button (if we have been told to use this)
 		if( API.settings.allowclose ){
-			API.addButton('atkit-unload', private.__baseURL + '/presentation/images/close.png', function(){ API.close(); }, {}, {});
+			API.addButton('atkit-unload', private.__assetURL + '/images/close.png', function(){ API.close(); }, {}, {});
 		}
 			
 		// Add buttons.
@@ -273,8 +277,7 @@ var AtKit = (function (window) {
 		
 		// Set unload function
 		API.__env.global.unloadFn['default'] = function(){
-			$('#sbarGhost').remove();
-			$('#sbar').remove();
+			$('#sbarGhost, #sbar').remove();
 		}
 	}
 	
@@ -303,7 +306,7 @@ var AtKit = (function (window) {
 			private.__aboutDialog.HTML += "<p id='ATKFBUserSpecifiedAbout'>" + API.settings.about + "</p>";
 			
 			// Append AtKit text
-			private.__aboutDialog.HTML += "<p>Powered by <a href='http://kit.atbar.org/'>AtKit</a> " + private.__cycle + " v" + private.__version.toFixed(1) + "." + private.__build + " (" + private.__channel + " release channel)</p>";
+			private.__aboutDialog.HTML += "<p id='ATKFBAboutFooter'>Powered by <a href='http://kit.atbar.org/'>AtKit</a> " + private.__cycle + " v" + private.__version.toFixed(1) + "." + private.__build + " (" + private.__channel + " release channel)</p>";
 			// Convert to jQuery object & wrap
 			private.__aboutDialog.HTML = $("<div>", { id: "ATKFBAbout" }).append(private.__aboutDialog.HTML);
 		}
@@ -357,6 +360,10 @@ var AtKit = (function (window) {
 	/////////////////////////
 	// API functions below //
 	/////////////////////////
+	
+	API.getBaseURL = function(){
+		return private.__baseURL;
+	}
 	
 	// Set toolbar name
 	API.setName = function(name){

@@ -13,7 +13,7 @@
 (function(AtKit) {
 	var jQ = AtKit.lib();
 
-	var baseURL = "http://access.ecs.soton.ac.uk/ToolBar/channels/echo/presentation/images/";
+	var baseURL = AtKit.getBaseURL() + "/presentation/images/";
 
 	jQ.facebox = function(data, klass) {
 		jQ.facebox.loading()
