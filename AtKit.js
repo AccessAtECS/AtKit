@@ -16,10 +16,10 @@ var AtKit = (function (window) {
 	// Internal properties
 	var private = {
 		__version: 2.0, // Version.
-		__build: 51, // Build.
+		__build: 57, // Build.
 		__baseURL: "http://access.ecs.soton.ac.uk/ToolBar/", // Load AtKit assets from here.
 		__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
-		__cycle: "ALPHA", // Release cycle for this version of AtKit.
+		__cycle: "alpha", // Release cycle for this version of AtKit.
 		__channel: "echo", // Release channel we're running in.
 		__invoked: false, // Is the framework already loaded?
 		__debug: true, // Debug mode on or off.
@@ -30,9 +30,9 @@ var AtKit = (function (window) {
 	
 	private.__assetURL = private.__baseURL + "channels/" + private.__channel + "/presentation/";
 	private.__aboutDialog = {
-		HTML: "<h1>AtKit " + private.__version.toFixed(1) + "." + private.__build + "</h1>",
+		HTML: "",
 		CSS: {
-			"#ATKFBAbout" : "font-size:16px;color: #364365;",
+			"#ATKFBAbout" : "font-family: Helvetica, Verdana, Arial, sans-serif;font-size:12px;color: #364365;",
 			"#ATKFBAbout h1" : "border-bottom: 1px solid #DDD; font-size: 16px; margin-bottom: 5px; margin-top: 10px; padding-bottom: 5px;"
 		}
 	}
@@ -50,7 +50,7 @@ var AtKit = (function (window) {
 		buttons: {}, // Object for every button. Object with the layout: { identifier: { function: function(), tip: 'tip', state: 'enabled' } }
 		languageMap: {}, // Translations
 		siteFixes: [] // Contains object for each site {regex: /regex/, function: function()} //
-	}	
+	}
 	
 	// API object. Everything in here becomes public after AtKit has finished executing
 	var API = {
@@ -68,11 +68,13 @@ var AtKit = (function (window) {
 			".at-btn a:active": "border: yellow solid 2px;",
 			".at-btn img": "margin: 0;padding:6px;border: none;background: none;"
 		},
-		settings: { 
+		settings: {
 			'noiframe': true, // Don't load if we're in an iframe.
 			'allowclose': false, // Enable the close button
 			'allowreset': false, // Allow the page reset button
-			"logoURL": '', "name": '' 
+			"logoURL": '', 
+			"name": '',
+			"about": ''
 		},
 		$: '' // Library used for the Toolbar
 	}
@@ -278,10 +280,8 @@ var AtKit = (function (window) {
 	
 	// Apple the CSS rules that have been defined
 	function applyCSS(obj){
-		console.log(obj);
 		var cssObj = (typeof obj == "undefined") ? API.__CSS : obj;
 		for(c in cssObj){
-			console.log("applying CSS to " + c);
 			if($( c ).length > 0) $( c ).attr('style', cssObj[c]);
 		}
 	}
@@ -295,8 +295,15 @@ var AtKit = (function (window) {
 	}
 	
 	function showAbout(){
-		console.log(private.__aboutDialog.CSS);
-		if(typeof private.__aboutDialog.HTML == "string"){
+		if(private.__aboutDialog.HTML == ""){
+			// Create the dialog
+			private.__aboutDialog.HTML = "<h1>About " + API.settings.name + "</h1>";
+			
+			// Append user text
+			private.__aboutDialog.HTML += "<p id='ATKFBUserSpecifiedAbout'>" + API.settings.about + "</p>";
+			
+			// Append AtKit text
+			private.__aboutDialog.HTML += "<p>Powered by <a href='http://kit.atbar.org/'>AtKit</a> " + private.__cycle + " v" + private.__version.toFixed(1) + "." + private.__build + " (" + private.__channel + " release channel)</p>";
 			// Convert to jQuery object & wrap
 			private.__aboutDialog.HTML = $("<div>", { id: "ATKFBAbout" }).append(private.__aboutDialog.HTML);
 		}
@@ -354,6 +361,10 @@ var AtKit = (function (window) {
 	// Set toolbar name
 	API.setName = function(name){
 		API.settings.name = name;
+	}
+	
+	API.setAbout = function(aboutText) {
+		API.settings.about = aboutText;
 	}
 	
 	// Set toolbar logo
