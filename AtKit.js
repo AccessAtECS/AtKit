@@ -2,21 +2,22 @@
  * AtKit Core
  * Open Source Cross-Browser ToolBar framework
  *
- * Copyright (c) 2010. University of Southampton
+ * Copyright (c) 2011. University of Southampton
  * Developed by Sebastian Skuse
- * http://access.ecs.soton.ac.uk/ToolBar/
+ * http://www.atbar.org/
  *
  * Licensed under the BSD Licence.
  * http://www.opensource.org/licenses/bsd-license.php
  *
  */
+(function( window, undefined ) {
 
-var AtKit = (function (window) { 
+var AtKit = (function() { 
 
 	// Internal properties
-	var private = {
+	AtKit.internal = AtKit.prototype = {
 		__version: 2.0, // Version.
-		__build: 69, // Build.
+		__build: 93, // Build.
 		__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 		__APIURL: "http://a.atbar.org/", // API endpoint
 		__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -28,11 +29,12 @@ var AtKit = (function (window) {
 		__maxLoadAttempts: 30, // Maximum number of times we'll try and load the library (one try every 500ms)
 		__errorMessageTimeout: 2000 // Time before error message will disapear.
 	}
+
+	AtKit.internal.__resourceURL = AtKit.internal.__baseURL;
+	AtKit.internal.__resourceURL += AtKit.internal.__channel;
+	AtKit.internal.__assetURL = AtKit.internal.__resourceURL + "/presentation/";
 	
-	private.__baseURL += private.__channel;
-	private.__assetURL = private.__baseURL + "/presentation/";
-	
-	private.__aboutDialog = {
+	AtKit.internal.__aboutDialog = {
 		HTML: "",
 		CSS: {
 			"#ATKFBAbout" : "font-family: Helvetica, Verdana, Arial, sans-serif;font-size:12px;color: #364365;",
@@ -42,7 +44,7 @@ var AtKit = (function (window) {
 	}
 	
 	// Public object that affects how AtKit behaves. Host toolbar has access to this.
-	var public = {
+	AtKit.external = AtKit.prototype = {
 		transport: 'JSONP', // AJAX transport method.
 		window: window, // Reference for the window object we're using.
 		global: {
@@ -58,24 +60,25 @@ var AtKit = (function (window) {
 	
 	// API object. Everything in here becomes public after AtKit has finished executing
 	var API = {
-		__env: public, // Load public object into API accessible object
+		__env: AtKit.external, // Load public object into API accessible object
 		__templates: {
-			"barGhost": "<center><img src=\"" + private.__assetURL + "images/loading.gif\" style=\"margin-top:10px;\" /></center>",
+			"barGhost": "<center><img src=\"" + AtKit.internal.__assetURL + "images/loading.gif\" style=\"margin-top:10px;\" /></center>",
 			"barFailed": "<center>library loading failed</center>",
-			"button": '<div id="at-btn-(ID)" class="at-btn"><a title="(TITLE)" id="at-lnk-(ID)" href="#s-b-c"><img src="(SRC)" alt="(TITLE)" border="0" /></a></div>'
+			"button": '<div id="at-btn-(ID)" title="(TITLE)" class="at-btn"><a title="(TITLE)" id="at-lnk-(ID)" href="#ATBarLink"><img src="(SRC)" alt="(TITLE)" border="0" /></a></div>'
 		},
 		__CSS: {
-			"#sbar": "background-color:#EBEAED; background-image:url('" + private.__assetURL + "images/background.png'); background-repeat:repeat-x; height:40px; left:0; line-height:40px; margin-left:auto; margin-right:auto; margin-top:0; padding:0px 5px 0px 5px; position:fixed; top:0; width:100%; z-index:9999998;",
+			"#sbar": "background-color:#EBEAED; background-image:url('" + AtKit.internal.__assetURL + "images/background.png'); background-repeat:repeat-x; height:40px; left:0; line-height:40px; margin-left:auto; margin-right:auto; margin-top:0; padding:0px 5px 0px 5px; position:fixed; top:0; width:100%; z-index:9999998;",
 			"#sbarGhost": "height:40px; width:100%;",
-			".at-btn": "background-repeat: no-repeat; background-position: left; background: url(" + private.__assetURL + "images/button_background.png) no-repeat; background-color: transparent;height:28px;width:28px;float:left;line-height: 14px;text-align:center;color: white;margin: 5px 0px 0px 5px;clear:none;",
+			".at-btn": "background-repeat: no-repeat; background-position: left; background: url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat; background-color: transparent;height:28px;width:28px;float:left;line-height: 14px;text-align:center;color: white;margin: 5px 0px 0px 5px;clear:none;",
 			".at-btn a": "display:block;height:28px;width:28px;background: transparent;position: inherit;",
 			".at-btn a:active": "border: yellow solid 2px;",
-			".at-btn img": "margin: 0;padding:6px;border: none;background: none;"
+			".at-btn img": "margin: 0;padding:6px;border: none;background: none;",
+			"#at-btn-atkit-reset, #at-btn-atkit-unload" : "background-repeat: no-repeat; background-position: left; background: url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat; background-color: transparent;height:28px;width:28px;line-height: 14px;text-align:center;color: white;margin: 5px 0px 0px 5px;clear:none;float:right;margin-right:5px;margin-left:0px;"
 		},
 		settings: {
 			'noiframe': true, // Don't load if we're in an iframe.
-			'allowclose': false, // Enable the close button
-			'allowreset': false, // Allow the page reset button
+			'allowclose': true, // Enable the close button
+			'allowreset': true, // Allow the page reset button
 			"logoURL": '', 
 			"name": '',
 			"about": ''
@@ -91,19 +94,19 @@ var AtKit = (function (window) {
 	
 	// Bootstrap function
 	function bootstrap(){
-		if(private.__debug) console.log('bootstrapping AtKit...');
+		if(AtKit.internal.__debug) console.log('bootstrapping AtKit...');
 		// If we're invoked already don't load again.
-		if( isLoaded() || private.__invoked ) return;
+		if( isLoaded() || AtKit.internal.__invoked ) return;
 
 		// Don't load if we're not the top window (running in an iframe)
 		if(API.settings.noiframe && window != window.top) return;
 
 		// Set window, if we're running in GreaseMonkey, we'll need access to unsafeWindow rather than window.
 		if(typeof unsafeWindow == "undefined"){
-			public.window = window;
+			AtKit.external.window = window;
 		} else {
-			public.window = unsafeWindow;
-			public.transport = "GM-XHR";
+			AtKit.external.window = unsafeWindow;
+			AtKit.external.transport = "GM-XHR";
 		}
 		
 		// Show the loading bar to the user.
@@ -114,13 +117,13 @@ var AtKit = (function (window) {
 	}
 	
 	function loadLibrary(){
-		if(private.__debug) console.log('loadLibrary called');
+		if(AtKit.internal.__debug) console.log('loadLibrary called');
 		// Do we have a jQuery library loaded already?
 		if(typeof jQuery != "undefined"){
 			try {
 				// We need jQuery 1.4 or above. Get the version string.
 				jQversion = parseFloat($().jquery.match(/\d\.\d/));
-				if(private.__debug) console.log('jQuery already loaded, v' + jQversion);
+				if(AtKit.internal.__debug) console.log('jQuery already loaded, v' + jQversion);
 			
 				if(jQversion > 1.4) {
 					$ = window.$;
@@ -132,28 +135,28 @@ var AtKit = (function (window) {
 			} catch(e){}
 		}
 		
-		if(private.__debug) console.log('jQuery not loaded, loading jQ 1.6');
+		if(AtKit.internal.__debug) console.log('jQuery not loaded, loading jQ 1.6');
 		// jQuery not loaded. Attach.
-		attachJS( 'atkit-jquery', private.__libURL );
+		attachJS( 'atkit-jquery', AtKit.internal.__libURL );
 		
 		// Wait for library to load.
 		waitForLib();
 	}
 	
 	function waitForLib(){
-		if(private.__debug) console.log('waitForLib invoked');
+		if(AtKit.internal.__debug) console.log('waitForLib invoked');
 		// If we are at the max attempt count, stop.
-		if( private.__loadAttempts == private.__maxLoadAttempts ) {
-			if(private.__debug) console.log('Max load count reached: stopping execution.');
+		if( AtKit.internal.__loadAttempts == AtKit.internal.__maxLoadAttempts ) {
+			if(AtKit.internal.__debug) console.log('Max load count reached: stopping execution.');
 			loadFailed();
 			return;
 		}
 		
 		// Check to see if jQuery has loaded. If not set a timer and increment the loadAttempts (so we don't flood the user if site is inacessible)
 		if ( typeof jQuery == 'undefined' ) {
-			if(private.__debug) console.log('waitForLib: jQuery undefined.');
+			if(AtKit.internal.__debug) console.log('waitForLib: jQuery undefined.');
 			setTimeout(function(){ waitForLib() }, 100);
-			private.__loadAttempts++;
+			AtKit.internal.__loadAttempts++;
 		} else {
 			// Bind jQuery to internal namespace.
 			// From now on, to access jQuery, we use API.lib() (binds to $).
@@ -161,7 +164,7 @@ var AtKit = (function (window) {
 			API.$ = $;
 			
 			// Load facebox.
-			API.addScript(private.__baseURL + "/facebox.js", function(){});
+			API.addScript(AtKit.internal.__baseURL + "atkit/facebox.js", function(){});
 			
 			// Once the document is ready broadcast ready event.
 			$(document).ready(function(){ broadcastLoaded(); });
@@ -169,18 +172,18 @@ var AtKit = (function (window) {
 	}
 	
 	function broadcastLoaded(){
-		if(private.__debug) console.log('broadcastLoaded fired.');
+		if(AtKit.internal.__debug) console.log('broadcastLoaded fired.');
 		
 		//return API to the global namespace.
-		public.window.AtKit = API;
+		AtKit.external.window.AtKit = API;
 		
 		// Send event to the plugin, if a listener has been defined.
-		if (typeof window.AtKitLoaded != "undefined") window.AtKitLoaded.fire(null, { version: private.__version });
+		if (typeof window.AtKitLoaded != "undefined") window.AtKitLoaded.fire(null, { version: AtKit.internal.__version });
 	}
 	
 	// AtKit may break some websites. Authors of toolbars are able, through attachSiteFix, fix any issues with sites.
 	function siteFixes(){
-		if(private.__debug) console.log('siteFixes fired. Running fixes.');
+		if(AtKit.internal.__debug) console.log('siteFixes fired. Running fixes.');
 		if(API.__env.siteFixes.length == 0) return;
 		for(fix in API.__env.siteFixes){
 			var sf = API.__env.siteFixes[fix];
@@ -191,21 +194,27 @@ var AtKit = (function (window) {
 	}
 	
 	function renderButton(ident){
-		if(private.__debug) console.log('renderButton fired for ident ' + ident + '.');
+		if(AtKit.internal.__debug) console.log('renderButton fired for ident ' + ident + '.');
 		// Pull down the template.
 		var b = API.__templates.button;
 		
 		// Replace in the template.
 		b = b.replace(/\(ID\)/ig, ident);
-		b = b.replace(/\(TITLE\)/ig, "");
+		b = b.replace(/\(TITLE\)/ig, API.__env.buttons[ident].tooltip);
 		b = b.replace(/\(SRC\)/ig, API.__env.buttons[ident].icon);
-		
+
 		// jQuery'ify
 		b = $(b);
-		
+
 		// Bind the click event
 		b.children('a').bind('click', { button: API.__env.buttons[ident] }, function(button){
-			API.__env.buttons[ident].action(button.data.button.dialogs, button.data.button.functions);
+			try {
+				API.__env.buttons[ident].action(button.data.button.dialogs, button.data.button.functions);
+			} catch (err){
+				if(AtKit.internal.__debug) console.log(err);
+			}
+			
+			button.preventDefault();
 		});
 		
 		// Emulate CSS active, hover, etc.
@@ -219,7 +228,7 @@ var AtKit = (function (window) {
 		
 		// Commit the HTML
 		API.__env.buttons[ident].HTML = b;
-		
+
 		// Return the HTML
 		return API.__env.buttons[ident].HTML;
 	}
@@ -228,7 +237,7 @@ var AtKit = (function (window) {
 	// Private function used to actually start the toolbar.
 	function start(){
 		// If we're already invoked ignore.
-		if( private.__invoked ) return;
+		if( AtKit.internal.__invoked ) return;
 		
 		// Insert the bar holder 
 		$( $('<div>', { id: 'sbar' }) ).insertAfter("#sbarGhost");
@@ -236,22 +245,22 @@ var AtKit = (function (window) {
 		// Insert the logo.
 		$(
 			$("<a>", { id: 'sbarlogo', click: function(){ showAbout() } }).append(
-				$("<img>", { "src": API.settings.logoURL, "align": "left", "border": "0", "title": API.settings.name + "Logo", "title": "About", "style": "float:left;margin-top:10px;" }) 
+				$("<img>", { "src": API.settings.logoURL, "align": "left", "border": "0", "title": API.settings.name + "Logo", "style": "float:left;margin-top:10px;" }) 
 			)
 		).appendTo('#sbar');
 		
-		$("<img>", { "src": private.__APIURL + "stat.php?channel=" + private.__channel + "&version=" + private.__version + "." + private.__build }).appendTo("#sbar");		
+		$("<img>", { "src": AtKit.internal.__APIURL + "stat.php?channel=" + AtKit.internal.__channel + "&version=" + AtKit.internal.__version + "." + AtKit.internal.__build }).appendTo("#sbar");		
 				
 				
+
+		// add the close button (if we have been told to use this)
+		if( API.settings.allowclose ){
+			API.addButton('atkit-unload', 'Exit', AtKit.internal.__assetURL + 'images/close.png', function(){ API.close(); }, null, null, 'fright');
+		}
 				
 		// add the reset button (if we have been told to use this)
 		if( API.settings.allowreset ){
-			API.addButton('atkit-reset', private.__assetURL + 'images/reset.png', function(){ location.reload(true) }, {}, {});
-		}
-			
-		// add the close button (if we have been told to use this)
-		if( API.settings.allowclose ){
-			API.addButton('atkit-unload', private.__assetURL + '/images/close.png', function(){ API.close(); }, {}, {});
+			API.addButton('atkit-reset', 'Reset webpage', AtKit.internal.__assetURL + 'images/reset.png', function(){ location.reload(true); }, null, null, 'fright');
 		}
 			
 		// Add buttons.
@@ -273,7 +282,7 @@ var AtKit = (function (window) {
 		}
 		
 		// Set state to invoked.
-		private.__invoked = true;
+		AtKit.internal.__invoked = true;
 		
 		// Set unload function
 		API.__env.global.unloadFn['default'] = function(){
@@ -298,20 +307,20 @@ var AtKit = (function (window) {
 	}
 	
 	function showAbout(){
-		if(private.__aboutDialog.HTML == ""){
+		if(AtKit.internal.__aboutDialog.HTML == ""){
 			// Create the dialog
-			private.__aboutDialog.HTML = "<h1>About " + API.settings.name + "</h1>";
+			AtKit.internal.__aboutDialog.HTML = "<h1>About " + API.settings.name + "</h1>";
 			
 			// Append user text
-			private.__aboutDialog.HTML += "<p id='ATKFBUserSpecifiedAbout'>" + API.settings.about + "</p>";
+			AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBUserSpecifiedAbout'>" + API.settings.about + "</p>";
 			
 			// Append AtKit text
-			private.__aboutDialog.HTML += "<p id='ATKFBAboutFooter'>Powered by <a href='http://kit.atbar.org/'>AtKit</a> " + private.__cycle + " v" + private.__version.toFixed(1) + "." + private.__build + " (" + private.__channel + " release channel)</p>";
+			AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBAboutFooter'>Powered by <a href='http://kit.atbar.org/'>AtKit</a> " + AtKit.internal.__cycle + " v" + AtKit.internal.__version.toFixed(1) + "." + AtKit.internal.__build + " (" + AtKit.internal.__channel + " release channel)</p>";
 			// Convert to jQuery object & wrap
-			private.__aboutDialog.HTML = $("<div>", { id: "ATKFBAbout" }).append(private.__aboutDialog.HTML);
+			AtKit.internal.__aboutDialog.HTML = $("<div>", { id: "ATKFBAbout" }).append(AtKit.internal.__aboutDialog.HTML);
 		}
-		API.message(private.__aboutDialog.HTML);
-		applyCSS(private.__aboutDialog.CSS);
+		API.message(AtKit.internal.__aboutDialog.HTML);
+		applyCSS(AtKit.internal.__aboutDialog.CSS);
 	}
 	
 	// Functions below here (but above the API functions) run with NO jQuery loaded.
@@ -353,7 +362,7 @@ var AtKit = (function (window) {
 			body = document.getElementsByTagName('body');
 			bar = document.getElementById('sbarGhost');
 			body[0].removeChild(bar);
-		}, private.__errorMessageTimeout );
+		}, AtKit.internal.__errorMessageTimeout );
 	}
 		
 	
@@ -361,8 +370,8 @@ var AtKit = (function (window) {
 	// API functions below //
 	/////////////////////////
 	
-	API.getBaseURL = function(){
-		return private.__baseURL;
+	API.getResourceURL = function(){
+		return AtKit.internal.__resourceURL;
 	}
 	
 	// Set toolbar name
@@ -403,6 +412,7 @@ var AtKit = (function (window) {
 		API.__env.global.fn[identifier] = fn;
 	}
 	
+	// Add a function to be run on exit.
 	API.addCloseFn = function(identifier, fn){
 		API.__env.global.closeFn[identifier] = fn;
 	}
@@ -414,10 +424,10 @@ var AtKit = (function (window) {
 	
 	// Attach a button to the toolbar
 	// Assets should be an object containing any dialogs that will be shown with facebox, as well a
-	API.addButton = function(identifier, icon, action, dialogs, functions){
-		API.__env.buttons[identifier] = { 'icon': icon, 'action': action, 'dialogs': dialogs, 'functions': functions };
+	API.addButton = function(identifier, tooltip, icon, action, dialogs, functions, cssClass){
+		API.__env.buttons[identifier] = { 'icon': icon, 'tooltip': tooltip, 'action': action, 'dialogs': dialogs, 'functions': functions, 'cssClass': cssClass };
 		
-		if(private.__invoked){
+		if(AtKit.internal.__invoked){
 			$( renderButton(identifier) ).appendTo('#sbar');
 		}
 	}
@@ -426,12 +436,17 @@ var AtKit = (function (window) {
 	API.removeButton = function(identifier){
 		delete API.__env.buttons[identifier];
 		
-		if(private.__invoked){
-			if(private.__debug) console.log('remove button ' + identifier);
+		if(AtKit.internal.__invoked){
+			if(AtKit.internal.__debug) console.log('remove button ' + identifier);
 			// If we've already been rendered we need to remove it from the DOM, too.
 			$("#at-btn-" + identifier).remove();
 		}
 	}	
+	
+	// Import buttons from an external source (defaults to us)
+	API.include = function(importArray, source){
+	
+	}
 	
 	// Pass in a dialog and we'll format it and show to the users.
 	API.show = function(dialog, callback){
@@ -452,8 +467,8 @@ var AtKit = (function (window) {
 	}
 	
 	// Call a global function
-	API.call = function(identifier){
-		return API.__env.global.fn[identifier]();
+	API.call = function(identifier, args){
+		return API.__env.global.fn[identifier](args);
 	}
 	
 	// Return library.
@@ -477,4 +492,8 @@ var AtKit = (function (window) {
 	bootstrap();
 
 	
-}(window));
+});
+
+window.AtKit = AtKit();
+
+})(window);
