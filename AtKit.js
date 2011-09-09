@@ -37,9 +37,9 @@ var AtKit = (function() {
 	AtKit.internal.__aboutDialog = {
 		HTML: "",
 		CSS: {
-			"#ATKFBAbout" : "font-family: Helvetica, Verdana, Arial, sans-serif;font-size:12px;color: #364365;",
-			"#ATKFBAbout h1" : "border-bottom: 1px solid #DDD; font-size: 16px; margin-bottom: 5px; margin-top: 10px; padding-bottom: 5px;",
-			"#ATKFBAbout p#ATKFBAboutFooter" : "border-top: 1px solid #DDD; padding-top:10px;margin-top:25px;"
+			"#ATKFBAbout" : "font-family:Helvetica, Verdana, Arial, sans-serif;font-size:12px;color:#364365;",
+			"#ATKFBAbout h1" : "border-bottom:1px solid #DDD;font-size:16px;margin-bottom:5px;margin-top:10px;padding-bottom:5px",
+			"#ATKFBAbout p#ATKFBAboutFooter" : "border-top:1px solid #DDD;padding-top:10px;margin-top:25px;"
 		}
 	}
 	
@@ -67,13 +67,13 @@ var AtKit = (function() {
 			"button": '<div id="at-btn-(ID)" title="(TITLE)" class="at-btn"><a title="(TITLE)" id="at-lnk-(ID)" href="#ATBarLink"><img src="(SRC)" alt="(TITLE)" border="0" /></a></div>'
 		},
 		__CSS: {
-			"#sbar": "background-color:#EBEAED; background-image:url('" + AtKit.internal.__assetURL + "images/background.png'); background-repeat:repeat-x; height:40px; left:0; line-height:40px; margin-left:auto; margin-right:auto; margin-top:0; padding:0px 5px 0px 5px; position:fixed; top:0; width:100%; z-index:9999998;",
-			"#sbarGhost": "height:40px; width:100%;",
-			".at-btn": "background-repeat: no-repeat; background-position: left; background: url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat; background-color: transparent;height:28px;width:28px;float:left;line-height: 14px;text-align:center;color: white;margin: 5px 0px 0px 5px;clear:none;",
-			".at-btn a": "display:block;height:28px;width:28px;background: transparent;position: inherit;",
-			".at-btn a:active": "border: yellow solid 2px;",
-			".at-btn img": "margin: 0;padding:6px;border: none;background: none;",
-			"#at-btn-atkit-reset, #at-btn-atkit-unload" : "background-repeat: no-repeat; background-position: left; background: url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat; background-color: transparent;height:28px;width:28px;line-height: 14px;text-align:center;color: white;margin: 5px 0px 0px 5px;clear:none;float:right;margin-right:5px;margin-left:0px;"
+			"#sbar": "background-color:#EBEAED;background-image:url("+AtKit.internal.__assetURL+"images/background.png);background-repeat:repeat-x;height:40px;left:0;line-height:40px;margin-left:auto;margin-right:auto;margin-top:0;position:fixed;top:0;width:100%;z-index:9999998;padding:0 5px",
+			"#sbarGhost": "height:40px;width:100%;",
+			".at-btn": "background-repeat:no-repeat;background-position:left;background:url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat;background-color:transparent;height:28px;width:28px;float:left;line-height:14px;text-align:center;color:#FFF;clear:none;margin:5px 0 0 5px",
+			".at-btn a": "display:block;height:28px;width:28px;background:transparent;position:inherit;",
+			".at-btn a:active": "border:yellow solid 2px;",
+			".at-btn img": "margin:0;padding:6px;border:none;background:none;",
+			"#at-btn-atkit-reset, #at-btn-atkit-unload": "background-repeat:no-repeat;background-position:left;background:url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat;background-color:transparent;height:28px;width:28px;line-height:14px;text-align:center;color:#FFF;clear:none;float:right;margin:5px 5px 0 0"
 		},
 		settings: {
 			'noiframe': true, // Don't load if we're in an iframe.
@@ -401,6 +401,8 @@ var AtKit = (function() {
 	// Attach a JS file to the current document using jQuery, or if not loaded, the native function we have.
 	API.addScript = function(url, callback){
 		if(typeof jQuery != "undefined"){
+			if($('script[src="' + url + '"]').length > 0) return;
+			
 			$.getScript(url, function() { callback() });
 		} else {
 			attachJS("", url);
@@ -456,12 +458,17 @@ var AtKit = (function() {
 		);
 		
 		$.facebox(dialog);
+		
+		applyCSS();
+		
 		if(typeof callback != "null" && typeof callback != "undefined") callback();
 	}
 	
 	// Show message not stored in a dialog object.
 	API.message = function(data, callback){
 		$.facebox(data);
+		
+		applyCSS();
 		
 		if(typeof callback != "null" && typeof callback != "undefined") callback();
 	}
