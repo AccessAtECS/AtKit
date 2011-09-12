@@ -16,8 +16,8 @@ var AtKit = (function() {
 
 	// Internal properties
 	AtKit.internal = AtKit.prototype = {
-		__version: 2.0, // Version.
-		__build: 93, // Build.
+		__version: 1.0, // Version.
+		__build: 96, // Build.
 		__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 		__APIURL: "http://a.atbar.org/", // API endpoint
 		__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -37,9 +37,9 @@ var AtKit = (function() {
 	AtKit.internal.__aboutDialog = {
 		HTML: "",
 		CSS: {
-			"#ATKFBAbout" : "font-family: Helvetica, Verdana, Arial, sans-serif;font-size:12px;color: #364365;",
-			"#ATKFBAbout h1" : "border-bottom: 1px solid #DDD; font-size: 16px; margin-bottom: 5px; margin-top: 10px; padding-bottom: 5px;",
-			"#ATKFBAbout p#ATKFBAboutFooter" : "border-top: 1px solid #DDD; padding-top:10px;margin-top:25px;"
+			"#ATKFBAbout" : "font-family:Helvetica, Verdana, Arial, sans-serif;font-size:12px;color:#364365;",
+			"#ATKFBAbout h1" : "border-bottom:1px solid #DDD;font-size:16px;margin-bottom:5px;margin-top:10px;padding-bottom:5px",
+			"#ATKFBAbout p#ATKFBAboutFooter" : "border-top:1px solid #DDD;padding-top:10px;margin-top:25px;"
 		}
 	}
 	
@@ -50,6 +50,7 @@ var AtKit = (function() {
 		global: {
 			buttons: {},
 			dialogs: {}, // Global dialogs (can be called through API.show)
+			storage: {}, // Global settings (API.set() API.get())
 			fn: {}, // Global functions (can be called through API.call)
 			unloadFn: {} // Functions to run when we unload
 		},
@@ -67,13 +68,14 @@ var AtKit = (function() {
 			"button": '<div id="at-btn-(ID)" title="(TITLE)" class="at-btn"><a title="(TITLE)" id="at-lnk-(ID)" href="#ATBarLink"><img src="(SRC)" alt="(TITLE)" border="0" /></a></div>'
 		},
 		__CSS: {
-			"#sbar": "background-color:#EBEAED; background-image:url('" + AtKit.internal.__assetURL + "images/background.png'); background-repeat:repeat-x; height:40px; left:0; line-height:40px; margin-left:auto; margin-right:auto; margin-top:0; padding:0px 5px 0px 5px; position:fixed; top:0; width:100%; z-index:9999998;",
-			"#sbarGhost": "height:40px; width:100%;",
-			".at-btn": "background-repeat: no-repeat; background-position: left; background: url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat; background-color: transparent;height:28px;width:28px;float:left;line-height: 14px;text-align:center;color: white;margin: 5px 0px 0px 5px;clear:none;",
-			".at-btn a": "display:block;height:28px;width:28px;background: transparent;position: inherit;",
-			".at-btn a:active": "border: yellow solid 2px;",
-			".at-btn img": "margin: 0;padding:6px;border: none;background: none;",
-			"#at-btn-atkit-reset, #at-btn-atkit-unload" : "background-repeat: no-repeat; background-position: left; background: url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat; background-color: transparent;height:28px;width:28px;line-height: 14px;text-align:center;color: white;margin: 5px 0px 0px 5px;clear:none;float:right;margin-right:5px;margin-left:0px;"
+			"#sbar": "background-color:#EBEAED;background-image:url("+AtKit.internal.__assetURL+"images/background.png);background-repeat:repeat-x;height:40px;left:0;line-height:40px;margin-left:auto;margin-right:auto;margin-top:0;position:fixed;top:0;width:100%;z-index:9999998;padding:0 5px",
+			"#sbarGhost": "height:40px;width:100%;",
+			".at-btn": "background-repeat:no-repeat;background-position:left;background:url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat;background-color:transparent;height:28px;width:28px;float:left;line-height:14px;text-align:center;color:#FFF;clear:none;margin:5px 0 0 5px",
+			".at-btn a": "display:block;height:28px;width:28px;background:transparent;position:inherit;",
+			".at-btn a:active": "border:yellow solid 2px;",
+			".at-btn img": "margin:0;padding:6px;border:none;background:none;",
+			"#at-btn-atkit-reset, #at-btn-atkit-unload": "background-repeat:no-repeat;background-position:left;background:url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat;background-color:transparent;height:28px;width:28px;line-height:14px;text-align:center;color:#FFF;clear:none;float:right;margin:5px 5px 0 0",
+			"#facebox button": "height:26px;width:100px;margin:10px"
 		},
 		settings: {
 			'noiframe': true, // Don't load if we're in an iframe.
@@ -255,12 +257,12 @@ var AtKit = (function() {
 
 		// add the close button (if we have been told to use this)
 		if( API.settings.allowclose ){
-			API.addButton('atkit-unload', 'Exit', AtKit.internal.__assetURL + 'images/close.png', function(){ API.close(); }, null, null, 'fright');
+			API.addButton('atkit-unload', 'Exit', AtKit.internal.__assetURL + 'images/close.png', function(){ API.close(); }, null, null, {'cssClass':'fright'});
 		}
 				
 		// add the reset button (if we have been told to use this)
 		if( API.settings.allowreset ){
-			API.addButton('atkit-reset', 'Reset webpage', AtKit.internal.__assetURL + 'images/reset.png', function(){ location.reload(true); }, null, null, 'fright');
+			API.addButton('atkit-reset', 'Reset webpage', AtKit.internal.__assetURL + 'images/reset.png', function(){ location.reload(true); }, null, null, {'cssClass':'fright'});
 		}
 			
 		// Add buttons.
@@ -400,8 +402,10 @@ var AtKit = (function() {
 	
 	// Attach a JS file to the current document using jQuery, or if not loaded, the native function we have.
 	API.addScript = function(url, callback){
-		if(typeof jQuery != "undefined"){
-			$.getScript(url, function() { callback() });
+		if(typeof $ != "undefined"){
+			if($('script[src="' + url + '"]').length > 0) return;
+			
+			$.getScript(url, callback);
 		} else {
 			attachJS("", url);
 		}
@@ -424,11 +428,15 @@ var AtKit = (function() {
 	
 	// Attach a button to the toolbar
 	// Assets should be an object containing any dialogs that will be shown with facebox, as well a
-	API.addButton = function(identifier, tooltip, icon, action, dialogs, functions, cssClass){
-		API.__env.buttons[identifier] = { 'icon': icon, 'tooltip': tooltip, 'action': action, 'dialogs': dialogs, 'functions': functions, 'cssClass': cssClass };
+	API.addButton = function(identifier, tooltip, icon, action, dialogs, functions, options){
+
+		API.__env.buttons[identifier] = { 'icon': icon, 'tooltip': tooltip, 'action': action, 'dialogs': dialogs, 'functions': functions };
 		
+		if(options != null) API.__env.buttons[identifier] = $.extend(true, API.__env.buttons[identifier], options);
+
 		if(AtKit.internal.__invoked){
 			$( renderButton(identifier) ).appendTo('#sbar');
+			applyCSS();
 		}
 	}
 	
@@ -452,10 +460,13 @@ var AtKit = (function() {
 	API.show = function(dialog, callback){
 		dialog = $("<div>", { "class": "userDialog" }).append(
 			$('<h2>', { 'text': dialog.title }),
-			$("<p>", { 'text': dialog.body })
+			$("<p>", { 'html': dialog.body })
 		);
 		
 		$.facebox(dialog);
+		
+		applyCSS();
+		
 		if(typeof callback != "null" && typeof callback != "undefined") callback();
 	}
 	
@@ -463,12 +474,22 @@ var AtKit = (function() {
 	API.message = function(data, callback){
 		$.facebox(data);
 		
+		applyCSS();
+		
 		if(typeof callback != "null" && typeof callback != "undefined") callback();
 	}
 	
 	// Call a global function
 	API.call = function(identifier, args){
 		return API.__env.global.fn[identifier](args);
+	}
+
+	API.set = function(k, v){
+		API.__env.global.storage[k] = v;
+	}
+	
+	API.get = function(k){
+		return API.__env.global.storage[k];
 	}
 	
 	// Return library.
