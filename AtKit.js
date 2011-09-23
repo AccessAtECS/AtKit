@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 111, // Build.
+			__build: 115, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -53,7 +53,8 @@
 				dialogs: {}, // Global dialogs (can be called through API.show)
 				storage: {}, // Global settings (API.set() API.get())
 				fn: {}, // Global functions (can be called through API.call)
-				unloadFn: {} // Functions to run when we unload
+				unloadFn: {}, // Functions to run when we unload
+				resetFn: {}
 			},
 			buttons: {}, // Object for every button. Object with the layout: { identifier: { function: function(), tip: 'tip', state: 'enabled' } }
 			languageMap: {}, // Translations
@@ -265,7 +266,7 @@
 					
 			// add the reset button (if we have been told to use this)
 			if( API.settings.allowreset ){
-				API.addButton('atkit-reset', 'Reset webpage', AtKit.internal.__assetURL + 'images/reset.png', function(){ location.reload(true); }, null, null, {'cssClass':'fright'});
+				API.addButton('atkit-reset', 'Reset webpage', AtKit.internal.__assetURL + 'images/reset.png', function(){ API.reset(); }, null, null, {'cssClass':'fright'});
 			}
 				
 			// Add buttons.
@@ -292,6 +293,10 @@
 			// Set unload function
 			API.__env.global.unloadFn['default'] = function(){
 				$('#sbarGhost, #sbar').remove();
+			}
+			
+			API.__env.global.resetFn['default'] = function(){
+				location.reload(true);
 			}
 		}
 		
@@ -433,6 +438,10 @@
 			API.__env.global.closeFn[identifier] = fn;
 		}
 		
+		API.addResetFn = function(identifier, fn){
+			API.__env.global.resetFn[identifier] = fn;
+		}
+		
 		// Add a global dialog
 		API.addDialog = function(identifier, title, body){
 			API.__env.global.dialogs[identifier] = { 'title': title, 'body': body }
@@ -500,19 +509,23 @@
 			return API.__env.global.fn[identifier](args);
 		}
 	
+		// Set session storage variable k to v.
 		API.set = function(k, v){
 			API.__env.global.storage[k] = v;
 		}
 		
+		// Get session storage variable set to k.
 		API.get = function(k){
 			return API.__env.global.storage[k];
 		}
 		
+		// Is HTML5 localstorage available?
 		API.storageAvailable = function(){
 			return (typeof window.localStorage) ? true : false;
 		}
 		
 		// HTML5 LocalStorage
+		// AtKit.storage(k[, v]);
 		API.storage = function(key, value){
 			if( !API.storageAvailable() ) return false;
 			
@@ -523,6 +536,19 @@
 			} else {
 				window.localStorage.setItem(namespaceKey, value);
 				return true;
+			}
+		}
+
+		API.clearStorage = function(){
+			if( !API.storageAvailable() ) return;
+
+			var namespaceKey = AtKit.internal.__localStorageNamespace + API.settings.name;
+			var exp = new RegExp('^' + namespaceKey + '.*');
+			
+			for(s in window.localStorage){
+				if( s.match(exp) ){
+					window.localStorage.removeItem(s);
+				}
 			}
 		}
 		
@@ -541,6 +567,13 @@
 		// Called to close the toolbar
 		API.close = function(){
 			stop();
+		}
+
+		API.reset = function(){
+			for(f in API.__env.global.resetFn){
+				API.__env.global.resetFn[f]();
+			}
+			AtKit.internal.__invoked = false;
 		}
 		
 		// Bootstrap the application
