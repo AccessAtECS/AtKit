@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 110, // Build.
+			__build: 111, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -516,10 +516,12 @@
 		API.storage = function(key, value){
 			if( !API.storageAvailable() ) return false;
 			
+			var namespaceKey = AtKit.internal.__localStorageNamespace + API.settings.name + "_" + key;
+
 			if(typeof value == "undefined"){
-				return window.localStorage.getItem(AtKit.internal.__localStorageNamespace + key);
+				return window.localStorage.getItem(namespaceKey);
 			} else {
-				window.localStorage.setItem(AtKit.internal.__localStorageNamespace + key, value);
+				window.localStorage.setItem(namespaceKey, value);
 				return true;
 			}
 		}
