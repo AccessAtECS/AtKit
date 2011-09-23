@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 108, // Build.
+			__build: 110, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -26,7 +26,8 @@
 			__debug: true, // Debug mode on or off.
 			__loadAttempts: 0, // Container for number of load attempts
 			__maxLoadAttempts: 30, // Maximum number of times we'll try and load the library (one try every 500ms)
-			__errorMessageTimeout: 2000 // Time before error message will disapear.
+			__errorMessageTimeout: 2000, // Time before error message will disapear.
+			__localStorageNamespace: "AtKit_"
 		}
 	
 		AtKit.internal.__resourceURL = AtKit.internal.__baseURL;
@@ -505,6 +506,22 @@
 		
 		API.get = function(k){
 			return API.__env.global.storage[k];
+		}
+		
+		API.storageAvailable = function(){
+			return (typeof window.localStorage) ? true : false;
+		}
+		
+		// HTML5 LocalStorage
+		API.storage = function(key, value){
+			if( !API.storageAvailable() ) return false;
+			
+			if(typeof value == "undefined"){
+				return window.localStorage.getItem(AtKit.internal.__localStorageNamespace + key);
+			} else {
+				window.localStorage.setItem(AtKit.internal.__localStorageNamespace + key, value);
+				return true;
+			}
 		}
 		
 		// Return library.
