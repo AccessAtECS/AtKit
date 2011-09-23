@@ -17,22 +17,23 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 103, // Build.
+			__build: 110, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
-			__cycle: "alpha", // Release cycle for this version of AtKit.
-			__channel: "echo", // Release channel we're running in.
+			__channel: "echo", // Release channel we're running in for this version of AtKit.
 			__invoked: false, // Is the framework already loaded?
 			__debug: true, // Debug mode on or off.
 			__loadAttempts: 0, // Container for number of load attempts
 			__maxLoadAttempts: 30, // Maximum number of times we'll try and load the library (one try every 500ms)
-			__errorMessageTimeout: 2000 // Time before error message will disapear.
+			__errorMessageTimeout: 2000, // Time before error message will disapear.
+			__localStorageNamespace: "AtKit_"
 		}
 	
 		AtKit.internal.__resourceURL = AtKit.internal.__baseURL;
 		AtKit.internal.__resourceURL += AtKit.internal.__channel;
 		AtKit.internal.__assetURL = AtKit.internal.__resourceURL + "/presentation/";
+		AtKit.internal.versionString = "v" + AtKit.internal.__version.toFixed(1) + "." + AtKit.internal.__build + " (" + AtKit.internal.__channel + " release channel)";
 		
 		AtKit.internal.__aboutDialog = {
 			HTML: "",
@@ -75,7 +76,7 @@
 				".at-btn a:active": "border:yellow solid 2px;",
 				".at-btn img": "margin:0;padding:6px;border:none;background:none;",
 				"#at-btn-atkit-reset, #at-btn-atkit-unload": "height:28px;width:28px;line-height:14px;text-align:center;color:#FFF;clear:none;float:right;margin:5px 5px 0 0;background:url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat;",
-				"#facebox button": "height:26px;width:100px;margin:10px"
+				"#facebox button": "height:26px;margin:10px"
 			},
 			settings: {
 				'noiframe': true, // Don't load if we're in an iframe.
@@ -96,7 +97,7 @@
 		
 		// Bootstrap function
 		function bootstrap(){
-			if(AtKit.internal.__debug) console.log('bootstrapping AtKit...');
+			if(AtKit.internal.__debug) console.log('bootstrapping AtKit ' + AtKit.internal.versionString + '...');
 			// If we're invoked already don't load again.
 			if( isLoaded() || AtKit.internal.__invoked ) return;
 	
@@ -166,7 +167,7 @@
 				API.$ = $;
 				
 				// Load facebox.
-				API.addScript(AtKit.internal.__baseURL + "atkit/facebox.js", function(){});
+				if(typeof $.facebox == "undefined") API.addScript(AtKit.internal.__baseURL + "atkit/facebox.js");
 				
 				// Once the document is ready broadcast ready event.
 				$(document).ready(function(){ broadcastLoaded(); });
@@ -287,7 +288,7 @@
 			
 			// Set state to invoked.
 			AtKit.internal.__invoked = true;
-			
+
 			// Set unload function
 			API.__env.global.unloadFn['default'] = function(){
 				$('#sbarGhost, #sbar').remove();
@@ -320,7 +321,7 @@
 				AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBUserSpecifiedAbout'>" + API.settings.about + "</p>";
 				
 				// Append AtKit text
-				AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBAboutFooter'>Powered by <a href='http://kit.atbar.org/'>AtKit</a> " + AtKit.internal.__cycle + " v" + AtKit.internal.__version.toFixed(1) + "." + AtKit.internal.__build + " (" + AtKit.internal.__channel + " release channel)</p>";
+				AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBAboutFooter'>Powered by <a href='http://kit.atbar.org/'>AtKit</a> " + AtKit.internal.versionString + "</p>";
 				// Convert to jQuery object & wrap
 				AtKit.internal.__aboutDialog.HTML = $("<div>", { id: "ATKFBAbout" }).append(AtKit.internal.__aboutDialog.HTML);
 			}
@@ -375,6 +376,10 @@
 		// API functions below //
 		/////////////////////////
 		
+		API.isRendered = function(){
+			return AtKit.internal.__invoked;
+		}
+
 		API.getResourceURL = function(){
 			return AtKit.internal.__resourceURL;
 		}
@@ -412,6 +417,10 @@
 			} else {
 				attachJS("", url);
 			}
+		}
+
+		API.addStylesheet = function(url, id){
+			$('head').append('<link rel="stylesheet" href="' + url + '" type="text/css" id="' + id + '" />');
 		}
 		
 		// Add a global function
@@ -465,7 +474,9 @@
 				$('<h2>', { 'text': dialog.title }),
 				$("<p>", { 'html': dialog.body })
 			);
-			
+
+			$('body').find('.facebox_hide').remove();
+
 			$.facebox(dialog);
 			
 			applyCSS();
@@ -475,6 +486,8 @@
 		
 		// Show message not stored in a dialog object.
 		API.message = function(data, callback){
+			$('body').find('.facebox_hide').remove();
+
 			$.facebox(data);
 			
 			applyCSS();
@@ -493,6 +506,22 @@
 		
 		API.get = function(k){
 			return API.__env.global.storage[k];
+		}
+		
+		API.storageAvailable = function(){
+			return (typeof window.localStorage) ? true : false;
+		}
+		
+		// HTML5 LocalStorage
+		API.storage = function(key, value){
+			if( !API.storageAvailable() ) return false;
+			
+			if(typeof value == "undefined"){
+				return window.localStorage.getItem(AtKit.internal.__localStorageNamespace + key);
+			} else {
+				window.localStorage.setItem(AtKit.internal.__localStorageNamespace + key, value);
+				return true;
+			}
 		}
 		
 		// Return library.
@@ -518,6 +547,6 @@
 		return API;
 	});
 
-window.AtKit = AtKit();
+window.AtKit = new AtKit();
 
 })(window);
