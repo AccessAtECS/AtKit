@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 115, // Build.
+			__build: 120, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -27,7 +27,8 @@
 			__loadAttempts: 0, // Container for number of load attempts
 			__maxLoadAttempts: 30, // Maximum number of times we'll try and load the library (one try every 500ms)
 			__errorMessageTimeout: 2000, // Time before error message will disapear.
-			__localStorageNamespace: "AtKit_"
+			__localStorageNamespace: "AtKit_", // Name to use for HTML5 localstorage namespace
+			plugins:[] // List of loaded plugins
 		}
 	
 		AtKit.internal.__resourceURL = AtKit.internal.__baseURL;
@@ -179,7 +180,7 @@
 			if(AtKit.internal.__debug) console.log('broadcastLoaded fired.');
 			
 			//return API to the global namespace.
-			AtKit.external.window.AtKit = API;
+			window['AtKit'] = API;
 			
 			// Send event to the plugin, if a listener has been defined.
 			if (typeof window.AtKitLoaded != "undefined") window.AtKitLoaded.fire(null, { version: AtKit.internal.__version });
@@ -334,6 +335,10 @@
 			applyCSS(AtKit.internal.__aboutDialog.CSS);
 		}
 		
+		function loadPlugins(){
+		
+		}
+		
 		// Functions below here (but above the API functions) run with NO jQuery loaded.
 		
 		// checks to see if the sbar element is loaded into the DOM.
@@ -472,9 +477,9 @@
 			}
 		}	
 		
-		// Import buttons from an external source (defaults to us)
-		API.include = function(importArray, source){
-		
+		// Import plugins
+		API.addPlugin = function(identifier){
+			
 		}
 		
 		// Pass in a dialog and we'll format it and show to the users.
@@ -582,6 +587,6 @@
 		return API;
 	});
 
-window.AtKit = new AtKit();
+window['AtKit'] = new AtKit();
 
 })(window);
