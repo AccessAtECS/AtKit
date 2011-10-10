@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 120, // Build.
+			__build: 125, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -28,7 +28,7 @@
 			__maxLoadAttempts: 30, // Maximum number of times we'll try and load the library (one try every 500ms)
 			__errorMessageTimeout: 2000, // Time before error message will disapear.
 			__localStorageNamespace: "AtKit_", // Name to use for HTML5 localstorage namespace
-			plugins:[] // List of loaded plugins
+			plugins:{} // Plugins
 		}
 	
 		AtKit.internal.__resourceURL = AtKit.internal.__baseURL;
@@ -477,9 +477,23 @@
 			}
 		}	
 		
-		// Import plugins
-		API.addPlugin = function(identifier){
+		
+		// Load code for plugins
+		API.importPlugins = function(plugins, callback){
+			var pluginString = (plugins instanceof Array) ? plugins.join(",") : plugins;
 			
+			API.addScript("http://plugins.atbar.org/" + pluginString + ".js", callback);
+		}		
+		
+		// Add plugin to rendering queue.
+		API.addPlugin = function(identifier){
+			AtKit.internal.plugins[identifier]();
+		}
+		
+		// Register a plugin (called by plugin)
+		API.registerPlugin = function(identifier, plugin){
+			console.log(AtKit.internal.plugins);
+			AtKit.internal.plugins[identifier] = plugin;
 		}
 		
 		// Pass in a dialog and we'll format it and show to the users.
