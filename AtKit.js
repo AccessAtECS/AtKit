@@ -213,7 +213,7 @@
 			// jQuery'ify
 			b = $(b);
 	
-			// Bind the click event
+			// Bind the click event and pass in reference to the button object
 			b.children('a').bind('click', { button: API.__env.buttons[ident] }, function(button){
 				try {
 					API.__env.buttons[ident].action(button.data.button.dialogs, button.data.button.functions);
@@ -411,15 +411,17 @@
 			API.__CSS[identifier] = inlineStyle;
 		}
 		
-		
+		// Set the language that this toolbar uses
 		API.setLanguage = function(language) {
 			AtKit.internal.language = language;
 		}
 		
+		// Add a localisation string (value) referenced by key for the language specified in cc.
 		API.addLocalisation = function(cc, key, value){
 			AtKit.internal.localisations[cc][key] = value;
 		}
 		
+		// Get a localisation string.
 		API.localisation = function(key){
 			return AtKit.internal.localisations[AtKit.internal.language][key];
 		}
