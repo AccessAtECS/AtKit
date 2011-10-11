@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 125, // Build.
+			__build: 135, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -28,7 +28,9 @@
 			__maxLoadAttempts: 30, // Maximum number of times we'll try and load the library (one try every 500ms)
 			__errorMessageTimeout: 2000, // Time before error message will disapear.
 			__localStorageNamespace: "AtKit_", // Name to use for HTML5 localstorage namespace
-			plugins:{} // Plugins
+			plugins:{}, // Plugins
+			localisations: {},
+			language:'GB'
 		}
 	
 		AtKit.internal.__resourceURL = AtKit.internal.__baseURL;
@@ -211,7 +213,7 @@
 			// jQuery'ify
 			b = $(b);
 	
-			// Bind the click event
+			// Bind the click event and pass in reference to the button object
 			b.children('a').bind('click', { button: API.__env.buttons[ident] }, function(button){
 				try {
 					API.__env.buttons[ident].action(button.data.button.dialogs, button.data.button.functions);
@@ -335,10 +337,6 @@
 			applyCSS(AtKit.internal.__aboutDialog.CSS);
 		}
 		
-		function loadPlugins(){
-		
-		}
-		
 		// Functions below here (but above the API functions) run with NO jQuery loaded.
 		
 		// checks to see if the sbar element is loaded into the DOM.
@@ -347,7 +345,7 @@
 			return false;
 		}
 	
-		// show the loading div, ddfined in templates variable in the API.
+		// show the loading div, defined in templates variable in the API.
 		function showLoader(){
 			// Create the div for the AtKit ghost.
 			barGhost = document.createElement('div');
@@ -411,6 +409,21 @@
 		// Add a CSS rule. Identifier is a jQuery selector expression, eg #bar. inlineStyle appears in the style attr in the DOM.
 		API.setCSS = function(identifier, inlineStyle){
 			API.__CSS[identifier] = inlineStyle;
+		}
+		
+		// Set the language that this toolbar uses
+		API.setLanguage = function(language) {
+			AtKit.internal.language = language;
+		}
+		
+		// Add a localisation string (value) referenced by key for the language specified in cc.
+		API.addLocalisation = function(cc, key, value){
+			AtKit.internal.localisations[cc][key] = value;
+		}
+		
+		// Get a localisation string.
+		API.localisation = function(key){
+			return AtKit.internal.localisations[AtKit.internal.language][key];
 		}
 		
 		// Add a site fix.
@@ -492,8 +505,15 @@
 		
 		// Register a plugin (called by plugin)
 		API.registerPlugin = function(identifier, plugin){
-			console.log(AtKit.internal.plugins);
 			AtKit.internal.plugins[identifier] = plugin;
+		}
+		
+		// Return an array of plugin names.
+		API.listPlugins = function(){
+			var pluginList = new Array();
+			for(p in AtKit.internal.plugins) pluginList.push(p);
+			
+			return pluginList;
 		}
 		
 		// Pass in a dialog and we'll format it and show to the users.
