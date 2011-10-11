@@ -29,7 +29,7 @@
 			__errorMessageTimeout: 2000, // Time before error message will disapear.
 			__localStorageNamespace: "AtKit_", // Name to use for HTML5 localstorage namespace
 			plugins:{}, // Plugins
-			localizations: {},
+			localisations: {},
 			language:'GB'
 		}
 	
@@ -416,12 +416,12 @@
 			AtKit.internal.language = language;
 		}
 		
-		API.addLocalization = function(cc, key, value){
-			AtKit.internal.localizations[cc][key] = value;
+		API.addLocalisation = function(cc, key, value){
+			AtKit.internal.localisations[cc][key] = value;
 		}
 		
-		API.localization = function(key){
-			return AtKit.internal.localizations[AtKit.internal.language][key];
+		API.localisation = function(key){
+			return AtKit.internal.localisations[AtKit.internal.language][key];
 		}
 		
 		// Add a site fix.
