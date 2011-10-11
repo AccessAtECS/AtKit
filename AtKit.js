@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 125, // Build.
+			__build: 130, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -335,10 +335,6 @@
 			applyCSS(AtKit.internal.__aboutDialog.CSS);
 		}
 		
-		function loadPlugins(){
-		
-		}
-		
 		// Functions below here (but above the API functions) run with NO jQuery loaded.
 		
 		// checks to see if the sbar element is loaded into the DOM.
@@ -347,7 +343,7 @@
 			return false;
 		}
 	
-		// show the loading div, ddfined in templates variable in the API.
+		// show the loading div, defined in templates variable in the API.
 		function showLoader(){
 			// Create the div for the AtKit ghost.
 			barGhost = document.createElement('div');
@@ -492,8 +488,15 @@
 		
 		// Register a plugin (called by plugin)
 		API.registerPlugin = function(identifier, plugin){
-			console.log(AtKit.internal.plugins);
 			AtKit.internal.plugins[identifier] = plugin;
+		}
+		
+		// Return an array of plugin names.
+		API.listPlugins = function(){
+			var pluginList = new Array();
+			for(p in AtKit.internal.plugins) pluginList.push(p);
+			
+			return pluginList;
 		}
 		
 		// Pass in a dialog and we'll format it and show to the users.
