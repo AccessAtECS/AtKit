@@ -28,7 +28,9 @@
 			__maxLoadAttempts: 30, // Maximum number of times we'll try and load the library (one try every 500ms)
 			__errorMessageTimeout: 2000, // Time before error message will disapear.
 			__localStorageNamespace: "AtKit_", // Name to use for HTML5 localstorage namespace
-			plugins:{} // Plugins
+			plugins:{}, // Plugins
+			localization: {},
+			language:'GB'
 		}
 	
 		AtKit.internal.__resourceURL = AtKit.internal.__baseURL;
@@ -407,6 +409,11 @@
 		// Add a CSS rule. Identifier is a jQuery selector expression, eg #bar. inlineStyle appears in the style attr in the DOM.
 		API.setCSS = function(identifier, inlineStyle){
 			API.__CSS[identifier] = inlineStyle;
+		}
+		
+		
+		API.setLanguage = function(language) {
+			API.internal.language = language;
 		}
 		
 		// Add a site fix.
