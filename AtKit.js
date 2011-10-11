@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 130, // Build.
+			__build: 135, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -28,7 +28,9 @@
 			__maxLoadAttempts: 30, // Maximum number of times we'll try and load the library (one try every 500ms)
 			__errorMessageTimeout: 2000, // Time before error message will disapear.
 			__localStorageNamespace: "AtKit_", // Name to use for HTML5 localstorage namespace
-			plugins:{} // Plugins
+			plugins:{}, // Plugins
+			localisations: {},
+			language:'GB'
 		}
 	
 		AtKit.internal.__resourceURL = AtKit.internal.__baseURL;
@@ -407,6 +409,19 @@
 		// Add a CSS rule. Identifier is a jQuery selector expression, eg #bar. inlineStyle appears in the style attr in the DOM.
 		API.setCSS = function(identifier, inlineStyle){
 			API.__CSS[identifier] = inlineStyle;
+		}
+		
+		
+		API.setLanguage = function(language) {
+			AtKit.internal.language = language;
+		}
+		
+		API.addLocalisation = function(cc, key, value){
+			AtKit.internal.localisations[cc][key] = value;
+		}
+		
+		API.localisation = function(key){
+			return AtKit.internal.localisations[AtKit.internal.language][key];
 		}
 		
 		// Add a site fix.
