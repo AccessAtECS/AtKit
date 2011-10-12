@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 135, // Build.
+			__build: 141, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -30,7 +30,8 @@
 			__localStorageNamespace: "AtKit_", // Name to use for HTML5 localstorage namespace
 			plugins:{}, // Plugins
 			localisations: {},
-			language:'GB'
+			language:'GB',
+			defaultLanguage: 'GB'
 		}
 	
 		AtKit.internal.__resourceURL = AtKit.internal.__baseURL;
@@ -421,8 +422,13 @@
 			AtKit.internal.localisations[cc][key] = value;
 		}
 		
+		API.addLocalisationMap = function(cc, map){
+			AtKit.internal.localisations[cc] = $.extend(true, AtKit.internal.localisations[cc], map);
+		}
+		
 		// Get a localisation string.
 		API.localisation = function(key){
+			if(typeof AtKit.internal.localisations[AtKit.internal.language] == "undefined") return AtKit.internal.localisations[AtKit.internal.defaultLanguage][key];
 			return AtKit.internal.localisations[AtKit.internal.language][key];
 		}
 		
