@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 145, // Build.
+			__build: 155, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -330,7 +330,16 @@
 				AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBUserSpecifiedAbout'>" + API.settings.about + "</p>";
 				
 				// Append AtKit text
-				AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBAboutFooter'>Powered by <a href='http://kit.atbar.org/'>AtKit</a> " + AtKit.internal.versionString + "</p>";
+				AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBAboutFooter'>Powered by <a href='http://kit.atbar.org/'>AtKit</a> " + AtKit.internal.versionString;
+				
+				var plugins = API.listPlugins();
+				
+				if(plugins.length > 0){
+					AtKit.internal.__aboutDialog.HTML += "<br /> Registered plugins: " + plugins.join(", ");
+				}
+				
+				AtKit.internal.__aboutDialog.HTML += "</p>";
+				
 				// Convert to jQuery object & wrap
 				AtKit.internal.__aboutDialog.HTML = $("<div>", { id: "ATKFBAbout" }).append(AtKit.internal.__aboutDialog.HTML);
 			}
@@ -415,6 +424,10 @@
 		// Set the language that this toolbar uses
 		API.setLanguage = function(language) {
 			AtKit.internal.language = language;
+		}
+		
+		API.getLanguage = function(){
+			return AtKit.internal.language;
 		}
 		
 		// Add a localisation string (value) referenced by key for the language specified in cc.
@@ -547,6 +560,10 @@
 			applyCSS();
 			
 			if(typeof callback != "null" && typeof callback != "undefined") callback();
+		}
+		
+		API.hideDialog = function(){
+			$(document).trigger(close.facebox);
 		}
 		
 		// Call a global function
