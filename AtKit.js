@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 155, // Build.
+			__build: 156, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -538,7 +538,7 @@
 		// Pass in a dialog and we'll format it and show to the users.
 		API.show = function(dialog, callback){
 			dialog = $("<div>", { "class": "userDialog" }).append(
-				$('<h2>', { 'text': dialog.title }),
+				$('<h2>', { 'html': dialog.title }),
 				$("<p>", { 'html': dialog.body })
 			);
 
