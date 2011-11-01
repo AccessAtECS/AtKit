@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 135, // Build.
+			__build: 156, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -30,7 +30,8 @@
 			__localStorageNamespace: "AtKit_", // Name to use for HTML5 localstorage namespace
 			plugins:{}, // Plugins
 			localisations: {},
-			language:'GB'
+			language:'GB',
+			defaultLanguage: 'GB'
 		}
 	
 		AtKit.internal.__resourceURL = AtKit.internal.__baseURL;
@@ -80,7 +81,7 @@
 				".at-btn a:active": "border:yellow solid 2px;",
 				".at-btn img": "margin:0;padding:6px;border:none;background:none;",
 				"#at-btn-atkit-reset, #at-btn-atkit-unload": "height:28px;width:28px;line-height:14px;text-align:center;color:#FFF;clear:none;float:right;margin:5px 5px 0 0;background:url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat;",
-				"#facebox button": "height:26px;margin:10px"
+				"#facebox button": "height:26px;margin:10px;padding:5px;color:white;background-color:#0064CD;border-color:rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);text-shadow:0 -1px 0 rgba(0,0,0,0.25);background-image: -webkit-linear-gradient(top, #049cdb, #0064cd);border-radius:4px"
 			},
 			settings: {
 				'noiframe': true, // Don't load if we're in an iframe.
@@ -329,7 +330,16 @@
 				AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBUserSpecifiedAbout'>" + API.settings.about + "</p>";
 				
 				// Append AtKit text
-				AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBAboutFooter'>Powered by <a href='http://kit.atbar.org/'>AtKit</a> " + AtKit.internal.versionString + "</p>";
+				AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBAboutFooter'>Powered by <a href='http://kit.atbar.org/'>AtKit</a> " + AtKit.internal.versionString;
+				
+				var plugins = API.listPlugins();
+				
+				if(plugins.length > 0){
+					AtKit.internal.__aboutDialog.HTML += "<br /> Registered plugins: " + plugins.join(", ");
+				}
+				
+				AtKit.internal.__aboutDialog.HTML += "</p>";
+				
 				// Convert to jQuery object & wrap
 				AtKit.internal.__aboutDialog.HTML = $("<div>", { id: "ATKFBAbout" }).append(AtKit.internal.__aboutDialog.HTML);
 			}
@@ -416,13 +426,22 @@
 			AtKit.internal.language = language;
 		}
 		
+		API.getLanguage = function(){
+			return AtKit.internal.language;
+		}
+		
 		// Add a localisation string (value) referenced by key for the language specified in cc.
 		API.addLocalisation = function(cc, key, value){
 			AtKit.internal.localisations[cc][key] = value;
 		}
 		
+		API.addLocalisationMap = function(cc, map){
+			AtKit.internal.localisations[cc] = $.extend(true, AtKit.internal.localisations[cc], map);
+		}
+		
 		// Get a localisation string.
 		API.localisation = function(key){
+			if(typeof AtKit.internal.localisations[AtKit.internal.language] == "undefined") return AtKit.internal.localisations[AtKit.internal.defaultLanguage][key];
 			return AtKit.internal.localisations[AtKit.internal.language][key];
 		}
 		
@@ -519,7 +538,7 @@
 		// Pass in a dialog and we'll format it and show to the users.
 		API.show = function(dialog, callback){
 			dialog = $("<div>", { "class": "userDialog" }).append(
-				$('<h2>', { 'text': dialog.title }),
+				$('<h2>', { 'html': dialog.title }),
 				$("<p>", { 'html': dialog.body })
 			);
 
@@ -541,6 +560,10 @@
 			applyCSS();
 			
 			if(typeof callback != "null" && typeof callback != "undefined") callback();
+		}
+		
+		API.hideDialog = function(){
+			$(document).trigger(close.facebox);
 		}
 		
 		// Call a global function
