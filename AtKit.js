@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 156, // Build.
+			__build: 160, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -117,9 +117,6 @@
 				AtKit.external.transport = "GM-XHR";
 			}
 			
-			// Show the loading bar to the user.
-			showLoader();
-			
 			// Load Library.
 			loadLibrary();
 		}
@@ -143,7 +140,10 @@
 				} catch(e){}
 			}
 			
-			if(AtKit.internal.__debug) console.log('jQuery not loaded, loading jQ 1.6');
+			if(AtKit.internal.__debug) {
+				newVersion = parseFloat(AtKit.internal.__libURL.match(/\d\.\d/));
+				console.log('jQuery not loaded, loading ' + newVersion);
+			}
 			// jQuery not loaded. Attach.
 			attachJS( 'atkit-jquery', AtKit.internal.__libURL );
 			
