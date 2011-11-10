@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 160, // Build.
+			__build: 162, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -40,7 +40,6 @@
 		AtKit.internal.versionString = "v" + AtKit.internal.__version.toFixed(1) + "." + AtKit.internal.__build + " (" + AtKit.internal.__channel + " release channel)";
 		
 		AtKit.internal.__aboutDialog = {
-			HTML: "",
 			CSS: {
 				"#ATKFBAbout" : "font-family:Helvetica, Verdana, Arial, sans-serif;font-size:12px;color:#364365;",
 				"#ATKFBAbout h1" : "border-bottom:1px solid #DDD;font-size:16px;margin-bottom:5px;margin-top:10px;padding-bottom:5px",
@@ -71,7 +70,7 @@
 			__templates: {
 				"barGhost": "<center><img src=\"" + AtKit.internal.__assetURL + "images/loading.gif\" style=\"margin-top:10px;\" /></center>",
 				"barFailed": "<center>library loading failed</center>",
-				"button": '<div id="at-btn-(ID)" title="(TITLE)" class="at-btn"><a title="(TITLE)" id="at-lnk-(ID)" href="#ATBarLink"><img src="(SRC)" alt="(TITLE)" border="0" /></a></div>'
+				"button": '<div id="at-btn-(ID)" title="(TITLE)" class="at-btn"><a title="(TITLE)" id="at-lnk-(ID)" href="#ATBarLink"><img src="(SRC)" alt="(TITLE)" height="16" width="16" border="0" /></a></div>'
 			},
 			__CSS: {
 				"#sbar": "height:40px;left:0;line-height:40px;margin-left:auto;margin-right:auto;margin-top:0;position:fixed;top:0;width:100%;z-index:9999998;padding:0 5px;background:url(" + AtKit.internal.__assetURL + "images/background.png) repeat-x #EBEAED;",
@@ -322,27 +321,26 @@
 		}
 		
 		function showAbout(){
-			if(AtKit.internal.__aboutDialog.HTML == ""){
-				// Create the dialog
-				AtKit.internal.__aboutDialog.HTML = "<h1>About " + API.settings.name + "</h1>";
-				
-				// Append user text
-				AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBUserSpecifiedAbout'>" + API.settings.about + "</p>";
-				
-				// Append AtKit text
-				AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBAboutFooter'>Powered by <a href='http://kit.atbar.org/'>AtKit</a> " + AtKit.internal.versionString;
-				
-				var plugins = API.listPlugins();
-				
-				if(plugins.length > 0){
-					AtKit.internal.__aboutDialog.HTML += "<br /> Registered plugins: " + plugins.join(", ");
-				}
-				
-				AtKit.internal.__aboutDialog.HTML += "</p>";
-				
-				// Convert to jQuery object & wrap
-				AtKit.internal.__aboutDialog.HTML = $("<div>", { id: "ATKFBAbout" }).append(AtKit.internal.__aboutDialog.HTML);
+			// Create the dialog
+			AtKit.internal.__aboutDialog.HTML = "<h1>About " + API.settings.name + "</h1>";
+			
+			// Append user text
+			AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBUserSpecifiedAbout'>" + API.settings.about + "</p>";
+			
+			// Append AtKit text
+			AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBAboutFooter'>Powered by <a href='http://kit.atbar.org/'>AtKit</a> " + AtKit.internal.versionString;
+			
+			var plugins = API.listPlugins();
+			
+			if(plugins.length > 0){
+				AtKit.internal.__aboutDialog.HTML += "<br /> Registered plugins: " + plugins.join(", ");
 			}
+			
+			AtKit.internal.__aboutDialog.HTML += "</p>";
+			
+			// Convert to jQuery object & wrap
+			AtKit.internal.__aboutDialog.HTML = $("<div>", { id: "ATKFBAbout" }).append(AtKit.internal.__aboutDialog.HTML);
+
 			API.message(AtKit.internal.__aboutDialog.HTML);
 			applyCSS(AtKit.internal.__aboutDialog.CSS);
 		}
