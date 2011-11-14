@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 164, // Build.
+			__build: 168, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -70,16 +70,18 @@
 			__templates: {
 				"barGhost": "<center><img src=\"" + AtKit.internal.__assetURL + "images/loading.gif\" style=\"margin-top:10px;\" /></center>",
 				"barFailed": "<center>library loading failed</center>",
-				"button": '<div id="at-btn-(ID)" title="(TITLE)" class="at-btn"><a title="(TITLE)" id="at-lnk-(ID)" href="#ATBarLink"><img src="(SRC)" alt="(TITLE)" height="16" width="16" border="0" /></a></div>'
+				"button": '<div id="at-btn-(ID)" title="(TITLE)" class="at-btn"><a title="(TITLE)" id="at-lnk-(ID)" href="#ATBarLink"><img src="(SRC)" alt="(TITLE)" height="16" width="16" border="0" /></a></div>',
+				"spacer": '<div class="at-spacer"></div>'
 			},
 			__CSS: {
 				"#sbar": "height:40px;left:0;line-height:40px;margin-left:auto;margin-right:auto;margin-top:0;position:fixed;top:0;width:100%;z-index:9999998;padding:0 5px;background:url(" + AtKit.internal.__assetURL + "images/background.png) repeat-x #EBEAED;",
 				"#sbarGhost": "height:40px;width:100%;",
+				".at-spacer": "display:block;height:40px;width:40px;float:left",
 				".at-btn": "height:28px;width:28px;float:left;line-height:14px;text-align:center;color:#FFF;clear:none;margin:5px 0 0 5px;background:url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat",
 				".at-btn a": "display:block;height:28px;width:28px;background:transparent;position:inherit;",
 				".at-btn a:active": "border:yellow solid 2px;",
 				".at-btn img": "margin:0;padding:6px;border:none;background:none;",
-				"#at-btn-atkit-reset, #at-btn-atkit-unload": "height:28px;width:28px;line-height:14px;text-align:center;color:#FFF;clear:none;float:right;margin:5px 5px 0 0;background:url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat;",
+				"#at-btn-atkit-reset, #at-btn-atkit-unload": "height:28px;width:28px;line-height:14px;text-align:center;color:#FFF;clear:none;float:right;margin:5px 10px 0 0;background:url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat;",
 				"#facebox button": "height:26px;margin:10px;padding:5px;color:white;background-color:#0064CD;border-color:rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);text-shadow:0 -1px 0 rgba(0,0,0,0.25);background-image: -webkit-linear-gradient(top, #049cdb, #0064cd);border-radius:4px"
 			},
 			settings: {
@@ -374,7 +376,7 @@
 			document.getElementsByTagName('head')[0].appendChild(j);	
 		}
 		
-		// Called when loading of the library failed and er've given up waiting.
+		// Called when loading of the library failed and we've given up waiting.
 		function loadFailed(){
 			bar = document.getElementById('sbarGhost');
 			
@@ -507,7 +509,19 @@
 			}
 		}	
 		
-		
+		API.addSpacer = function(width){
+			if(typeof width == "undefined"){
+				$(API.__templates.spacer).appendTo('#sbar');
+			}
+			
+			if(!isNaN(width)){
+				for(i = 0; i < width; i++){
+					$(API.__templates.spacer).appendTo('#sbar');
+				}
+			}
+			applyCSS();
+		}
+
 		// Load code for plugins
 		API.importPlugins = function(plugins, callback){
 			var pluginString = (plugins instanceof Array) ? plugins.join(",") : plugins;
