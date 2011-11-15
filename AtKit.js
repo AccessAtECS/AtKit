@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 173, // Build.
+			__build: 177, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -126,13 +126,14 @@
 		function loadLibrary(){
 			if(AtKit.internal.__debug) debug('loadLibrary called');
 			// Do we have a jQuery library loaded already?
-			if(typeof jQuery != "undefined"){
+			
+			if(typeof window.jQuery != "undefined"){
 				try {
-					// We need jQuery 1.4 or above. Get the version string.
-					jQversion = parseFloat($().jquery.match(/\d\.\d/));
+					// We need jQuery 1.5 or above. Get the version string.
+					jQversion = parseFloat(window.$().jquery.match(/\d\.\d/));
 					if(AtKit.internal.__debug) debug('jQuery already loaded, v' + jQversion);
 				
-					if(jQversion > 1.4) {
+					if(jQversion > 1.5) {
 						$ = window.$;
 						API.$ = $;
 						
@@ -287,7 +288,7 @@
 			siteFixes();
 			
 			// IE 6 fix
-			if ( $.browser == "msie" && API.lib().browser.version == 6 ) {
+			if ( $.browser == "msie" && $.browser.version == 6 ) {
 				$('#sbarGhost').remove();
 			} else {
 				$('#sbarGhost').html("&nbsp;");
