@@ -17,10 +17,10 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 160, // Build.
+			__build: 177, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
-			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
+			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
 			__channel: "echo", // Release channel we're running in for this version of AtKit.
 			__invoked: false, // Is the framework already loaded?
 			__debug: true, // Debug mode on or off.
@@ -30,6 +30,7 @@
 			__localStorageNamespace: "AtKit_", // Name to use for HTML5 localstorage namespace
 			plugins:{}, // Plugins
 			localisations: {},
+			debugCallback: null,
 			language:'GB',
 			defaultLanguage: 'GB'
 		}
@@ -40,7 +41,6 @@
 		AtKit.internal.versionString = "v" + AtKit.internal.__version.toFixed(1) + "." + AtKit.internal.__build + " (" + AtKit.internal.__channel + " release channel)";
 		
 		AtKit.internal.__aboutDialog = {
-			HTML: "",
 			CSS: {
 				"#ATKFBAbout" : "font-family:Helvetica, Verdana, Arial, sans-serif;font-size:12px;color:#364365;",
 				"#ATKFBAbout h1" : "border-bottom:1px solid #DDD;font-size:16px;margin-bottom:5px;margin-top:10px;padding-bottom:5px",
@@ -71,16 +71,18 @@
 			__templates: {
 				"barGhost": "<center><img src=\"" + AtKit.internal.__assetURL + "images/loading.gif\" style=\"margin-top:10px;\" /></center>",
 				"barFailed": "<center>library loading failed</center>",
-				"button": '<div id="at-btn-(ID)" title="(TITLE)" class="at-btn"><a title="(TITLE)" id="at-lnk-(ID)" href="#ATBarLink"><img src="(SRC)" alt="(TITLE)" border="0" /></a></div>'
+				"button": '<div id="at-btn-(ID)" title="(TITLE)" class="at-btn"><a title="(TITLE)" id="at-lnk-(ID)" href="#ATBarLink"><img src="(SRC)" alt="(TITLE)" height="16" width="16" border="0" /></a></div>',
+				"spacer": '<div class="at-spacer"></div>'
 			},
 			__CSS: {
 				"#sbar": "height:40px;left:0;line-height:40px;margin-left:auto;margin-right:auto;margin-top:0;position:fixed;top:0;width:100%;z-index:9999998;padding:0 5px;background:url(" + AtKit.internal.__assetURL + "images/background.png) repeat-x #EBEAED;",
 				"#sbarGhost": "height:40px;width:100%;",
+				".at-spacer": "display:block;height:40px;width:40px;float:left",
 				".at-btn": "height:28px;width:28px;float:left;line-height:14px;text-align:center;color:#FFF;clear:none;margin:5px 0 0 5px;background:url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat",
 				".at-btn a": "display:block;height:28px;width:28px;background:transparent;position:inherit;",
 				".at-btn a:active": "border:yellow solid 2px;",
 				".at-btn img": "margin:0;padding:6px;border:none;background:none;",
-				"#at-btn-atkit-reset, #at-btn-atkit-unload": "height:28px;width:28px;line-height:14px;text-align:center;color:#FFF;clear:none;float:right;margin:5px 5px 0 0;background:url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat;",
+				"#at-btn-atkit-reset, #at-btn-atkit-unload": "height:28px;width:28px;line-height:14px;text-align:center;color:#FFF;clear:none;float:right;margin:5px 10px 0 0;background:url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat;",
 				"#facebox button": "height:26px;margin:10px;padding:5px;color:white;background-color:#0064CD;border-color:rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);text-shadow:0 -1px 0 rgba(0,0,0,0.25);background-image: -webkit-linear-gradient(top, #049cdb, #0064cd);border-radius:4px"
 			},
 			settings: {
@@ -102,7 +104,7 @@
 		
 		// Bootstrap function
 		function bootstrap(){
-			if(AtKit.internal.__debug) console.log('bootstrapping AtKit ' + AtKit.internal.versionString + '...');
+			if(AtKit.internal.__debug) debug('bootstrapping AtKit ' + AtKit.internal.versionString + '...');
 			// If we're invoked already don't load again.
 			if( isLoaded() || AtKit.internal.__invoked ) return;
 	
@@ -122,15 +124,16 @@
 		}
 		
 		function loadLibrary(){
-			if(AtKit.internal.__debug) console.log('loadLibrary called');
+			if(AtKit.internal.__debug) debug('loadLibrary called');
 			// Do we have a jQuery library loaded already?
-			if(typeof jQuery != "undefined"){
+			
+			if(typeof window.jQuery != "undefined"){
 				try {
-					// We need jQuery 1.4 or above. Get the version string.
-					jQversion = parseFloat($().jquery.match(/\d\.\d/));
-					if(AtKit.internal.__debug) console.log('jQuery already loaded, v' + jQversion);
+					// We need jQuery 1.5 or above. Get the version string.
+					jQversion = parseFloat(window.$().jquery.match(/\d\.\d/));
+					if(AtKit.internal.__debug) debug('jQuery already loaded, v' + jQversion);
 				
-					if(jQversion > 1.4) {
+					if(jQversion > 1.5) {
 						$ = window.$;
 						API.$ = $;
 						
@@ -142,7 +145,7 @@
 			
 			if(AtKit.internal.__debug) {
 				newVersion = parseFloat(AtKit.internal.__libURL.match(/\d\.\d/));
-				console.log('jQuery not loaded, loading ' + newVersion);
+				debug('jQuery not loaded, loading ' + newVersion);
 			}
 			// jQuery not loaded. Attach.
 			attachJS( 'atkit-jquery', AtKit.internal.__libURL );
@@ -152,17 +155,17 @@
 		}
 		
 		function waitForLib(){
-			if(AtKit.internal.__debug) console.log('waitForLib invoked');
+			if(AtKit.internal.__debug) debug('waitForLib invoked');
 			// If we are at the max attempt count, stop.
 			if( AtKit.internal.__loadAttempts == AtKit.internal.__maxLoadAttempts ) {
-				if(AtKit.internal.__debug) console.log('Max load count reached: stopping execution.');
+				if(AtKit.internal.__debug) debug('Max load count reached: stopping execution.');
 				loadFailed();
 				return;
 			}
 			
 			// Check to see if jQuery has loaded. If not set a timer and increment the loadAttempts (so we don't flood the user if site is inacessible)
 			if ( typeof jQuery == 'undefined' ) {
-				if(AtKit.internal.__debug) console.log('waitForLib: jQuery undefined.');
+				if(AtKit.internal.__debug) debug('waitForLib: jQuery undefined.');
 				setTimeout(function(){ waitForLib() }, 100);
 				AtKit.internal.__loadAttempts++;
 			} else {
@@ -180,7 +183,7 @@
 		}
 		
 		function broadcastLoaded(){
-			if(AtKit.internal.__debug) console.log('broadcastLoaded fired.');
+			if(AtKit.internal.__debug) debug('broadcastLoaded fired.');
 			
 			//return API to the global namespace.
 			window['AtKit'] = API;
@@ -191,7 +194,7 @@
 		
 		// AtKit may break some websites. Authors of toolbars are able, through attachSiteFix, fix any issues with sites.
 		function siteFixes(){
-			if(AtKit.internal.__debug) console.log('siteFixes fired. Running fixes.');
+			if(AtKit.internal.__debug) debug('siteFixes fired. Running fixes.');
 			if(API.__env.siteFixes.length == 0) return;
 			for(fix in API.__env.siteFixes){
 				var sf = API.__env.siteFixes[fix];
@@ -202,7 +205,7 @@
 		}
 		
 		function renderButton(ident){
-			if(AtKit.internal.__debug) console.log('renderButton fired for ident ' + ident + '.');
+			if(AtKit.internal.__debug) debug('renderButton fired for ident ' + ident + '.');
 			// Pull down the template.
 			var b = API.__templates.button;
 			
@@ -219,7 +222,7 @@
 				try {
 					API.__env.buttons[ident].action(button.data.button.dialogs, button.data.button.functions);
 				} catch (err){
-					if(AtKit.internal.__debug) console.log(err);
+					if(AtKit.internal.__debug) debug(err);
 				}
 				
 				button.preventDefault();
@@ -285,7 +288,7 @@
 			siteFixes();
 			
 			// IE 6 fix
-			if ( $.browser == "msie" && API.lib().browser.version == 6 ) {
+			if ( $.browser == "msie" && $.browser.version == 6 ) {
 				$('#sbarGhost').remove();
 			} else {
 				$('#sbarGhost').html("&nbsp;");
@@ -322,31 +325,38 @@
 		}
 		
 		function showAbout(){
-			if(AtKit.internal.__aboutDialog.HTML == ""){
-				// Create the dialog
-				AtKit.internal.__aboutDialog.HTML = "<h1>About " + API.settings.name + "</h1>";
-				
-				// Append user text
-				AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBUserSpecifiedAbout'>" + API.settings.about + "</p>";
-				
-				// Append AtKit text
-				AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBAboutFooter'>Powered by <a href='http://kit.atbar.org/'>AtKit</a> " + AtKit.internal.versionString;
-				
-				var plugins = API.listPlugins();
-				
-				if(plugins.length > 0){
-					AtKit.internal.__aboutDialog.HTML += "<br /> Registered plugins: " + plugins.join(", ");
-				}
-				
-				AtKit.internal.__aboutDialog.HTML += "</p>";
-				
-				// Convert to jQuery object & wrap
-				AtKit.internal.__aboutDialog.HTML = $("<div>", { id: "ATKFBAbout" }).append(AtKit.internal.__aboutDialog.HTML);
+			// Create the dialog
+			AtKit.internal.__aboutDialog.HTML = "<h1>About " + API.settings.name + "</h1>";
+			
+			// Append user text
+			AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBUserSpecifiedAbout'>" + API.settings.about + "</p>";
+			
+			// Append AtKit text
+			AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBAboutFooter'>Powered by <a href='http://kit.atbar.org/'>AtKit</a> " + AtKit.internal.versionString;
+			
+			var plugins = API.listPlugins();
+			
+			if(plugins.length > 0){
+				AtKit.internal.__aboutDialog.HTML += "<br /> Registered plugins: " + plugins.join(", ");
 			}
+			
+			AtKit.internal.__aboutDialog.HTML += "</p>";
+			
+			// Convert to jQuery object & wrap
+			AtKit.internal.__aboutDialog.HTML = $("<div>", { id: "ATKFBAbout" }).append(AtKit.internal.__aboutDialog.HTML);
+
 			API.message(AtKit.internal.__aboutDialog.HTML);
 			applyCSS(AtKit.internal.__aboutDialog.CSS);
 		}
 		
+		function debug(msg){
+			if(AtKit.internal.debugCallback != null) {
+				AtKit.internal.debugCallback(msg);
+			} else {
+				if(typeof console != "undefined") console.log(msg);
+			}
+		}
+
 		// Functions below here (but above the API functions) run with NO jQuery loaded.
 		
 		// checks to see if the sbar element is loaded into the DOM.
@@ -376,7 +386,7 @@
 			document.getElementsByTagName('head')[0].appendChild(j);	
 		}
 		
-		// Called when loading of the library failed and er've given up waiting.
+		// Called when loading of the library failed and we've given up waiting.
 		function loadFailed(){
 			bar = document.getElementById('sbarGhost');
 			
@@ -393,6 +403,10 @@
 		/////////////////////////
 		// API functions below //
 		/////////////////////////
+		
+		API.getVersion = function(){
+			return AtKit.internal.__version.toFixed(1) + "." + AtKit.internal.__build;
+		}
 		
 		API.isRendered = function(){
 			return AtKit.internal.__invoked;
@@ -503,13 +517,25 @@
 			delete API.__env.buttons[identifier];
 			
 			if(AtKit.internal.__invoked){
-				if(AtKit.internal.__debug) console.log('remove button ' + identifier);
+				if(AtKit.internal.__debug) debug('remove button ' + identifier);
 				// If we've already been rendered we need to remove it from the DOM, too.
 				$("#at-btn-" + identifier).remove();
 			}
 		}	
 		
-		
+		API.addSpacer = function(width){
+			if(typeof width == "undefined"){
+				$(API.__templates.spacer).appendTo('#sbar');
+			}
+			
+			if(!isNaN(width)){
+				for(i = 0; i < width; i++){
+					$(API.__templates.spacer).appendTo('#sbar');
+				}
+			}
+			applyCSS();
+		}
+
 		// Load code for plugins
 		API.importPlugins = function(plugins, callback){
 			var pluginString = (plugins instanceof Array) ? plugins.join(",") : plugins;
@@ -614,6 +640,10 @@
 			}
 		}
 		
+		API.setDebugger = function(fn){
+			AtKit.internal.debugCallback = fn;
+		}
+
 		// Return library.
 		API.lib = function(){
 			if(typeof $ == 'function') return $;
