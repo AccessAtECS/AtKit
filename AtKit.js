@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 177, // Build.
+			__build: 179, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -137,8 +137,11 @@
 						$ = window.$;
 						API.$ = $;
 						
+						// Load facebox.
+						if(typeof $.facebox == "undefined") API.addScript(AtKit.internal.__baseURL + "atkit/facebox.js");
+						
 						broadcastLoaded();
-					return;
+						return;
 					}
 				} catch(e){}
 			}
