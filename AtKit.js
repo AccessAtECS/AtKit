@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 182, // Build.
+			__build: 185, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -72,12 +72,14 @@
 				"barGhost": "<center><img src=\"" + AtKit.internal.__assetURL + "images/loading.gif\" style=\"margin-top:10px;\" /></center>",
 				"barFailed": "<center>library loading failed</center>",
 				"button": '<div id="at-btn-(ID)" title="(TITLE)" class="at-btn"><a title="(TITLE)" id="at-lnk-(ID)" href="#ATBarLink"><img src="(SRC)" alt="(TITLE)" height="16" width="16" border="0" /></a></div>',
-				"spacer": '<div class="at-spacer"></div>'
+				"spacer": '<div class="at-spacer"></div>',
+				"separator": '<div class="at-separator"></div>'
 			},
 			__CSS: {
 				"#sbar": "height:40px;left:0;line-height:40px;margin-left:auto;margin-right:auto;margin-top:0;position:fixed;top:0;width:100%;z-index:9999998;padding:0 5px;background:url(" + AtKit.internal.__assetURL + "images/background.png) repeat-x #EBEAED;",
 				"#sbarGhost": "height:40px;width:100%;",
 				".at-spacer": "display:block;height:40px;width:40px;float:left",
+				".at-separator": "display:block;height:25px;float:left;border-left:2px solid #a9a9a9;margin:7px 7px 4px 7px",
 				".at-btn": "height:28px;width:28px;float:left;line-height:14px;text-align:center;color:#FFF;clear:none;margin:5px 0 0 5px;background:url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat",
 				".at-btn a": "display:block;height:28px;width:28px;background:transparent;position:inherit;",
 				".at-btn a:active": "border:yellow solid 2px;",
@@ -543,6 +545,11 @@
 					$(API.__templates.spacer).appendTo('#sbar');
 				}
 			}
+			applyCSS();
+		}
+
+		API.addSeparator = function(){
+			$(API.__templates.separator).appendTo('#sbar');
 			applyCSS();
 		}
 
