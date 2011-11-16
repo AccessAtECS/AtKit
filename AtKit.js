@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 181, // Build.
+			__build: 182, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -569,6 +569,10 @@
 			for(p in AtKit.internal.plugins) pluginList.push(p);
 			
 			return pluginList;
+		}
+
+		API.getPluginMetadata = function(plugin){
+			return AtKit.internal.plugins[plugin]["metadata"];
 		}
 		
 		// Pass in a dialog and we'll format it and show to the users.
