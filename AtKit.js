@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 179, // Build.
+			__build: 181, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
@@ -138,7 +138,7 @@
 						API.$ = $;
 						
 						// Load facebox.
-						if(typeof $.facebox == "undefined") API.addScript(AtKit.internal.__baseURL + "atkit/facebox.js");
+						loadFacebox();
 						
 						broadcastLoaded();
 						return;
@@ -178,13 +178,17 @@
 				API.$ = $;
 				
 				// Load facebox.
-				if(typeof $.facebox == "undefined") API.addScript(AtKit.internal.__baseURL + "atkit/facebox.js");
+				loadFacebox();
 				
 				// Once the document is ready broadcast ready event.
 				$(document).ready(function(){ broadcastLoaded(); });
 			}
 		}
 		
+		function loadFacebox(){
+			if(typeof $.facebox == "undefined") API.addScript(AtKit.internal.__baseURL + "atkit/facebox.js");
+		}
+
 		function broadcastLoaded(){
 			if(AtKit.internal.__debug) debug('broadcastLoaded fired.');
 			
@@ -459,6 +463,7 @@
 		// Get a localisation string.
 		API.localisation = function(key){
 			if(typeof AtKit.internal.localisations[AtKit.internal.language] == "undefined") return AtKit.internal.localisations[AtKit.internal.defaultLanguage][key];
+			if(typeof AtKit.internal.localisations[AtKit.internal.language][key] == "undefined") return "{no value set for key " + key + " in language " + AtKit.internal.language + "}";
 			return AtKit.internal.localisations[AtKit.internal.language][key];
 		}
 		
@@ -479,7 +484,9 @@
 		}
 
 		API.addStylesheet = function(url, id){
-			$('head').append('<link rel="stylesheet" href="' + url + '" type="text/css" id="' + id + '" />');
+			$('head').append(
+				$('<link>', { "rel": "stylesheet", "href": url, "type": "text/css", "id": id })
+			);
 		}
 		
 		// Add a global function
@@ -548,12 +555,12 @@
 		
 		// Add plugin to rendering queue.
 		API.addPlugin = function(identifier){
-			AtKit.internal.plugins[identifier]();
+			AtKit.internal.plugins[identifier]["payload"]();
 		}
 		
 		// Register a plugin (called by plugin)
-		API.registerPlugin = function(identifier, plugin){
-			AtKit.internal.plugins[identifier] = plugin;
+		API.registerPlugin = function(identifier, plugin, metadata){
+			AtKit.internal.plugins[identifier] = { "payload": plugin, "metadata": metadata };
 		}
 		
 		// Return an array of plugin names.
