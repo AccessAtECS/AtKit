@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 197, // Build.
+			__build: 198, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__pluginURL: "http://plugins.atbar.org/",
@@ -141,8 +141,7 @@
 					debug('jQuery already loaded, v' + jQversion);
 				
 					if(jQversion > 1.5) {
-						$ = window.$;
-						API.$ = $;
+						API.$ = $ = window.$;
 						
 						// Load facebox.
 						loadFacebox();
@@ -180,9 +179,7 @@
 				AtKit.internal.__loadAttempts++;
 			} else {
 				// Bind jQuery to internal namespace.
-				// From now on, to access jQuery, we use API.lib() (binds to $).
-				$ = jQuery.noConflict();
-				API.$ = $;
+				API.$ = $ = jQuery.noConflict(); 
 				
 				// Load facebox.
 				loadFacebox();
@@ -277,8 +274,7 @@
 			).appendTo('#sbar');
 			
 			$("<img>", { "src": AtKit.internal.__APIURL + "stat.php?channel=" + AtKit.internal.__channel + "&version=" + AtKit.internal.__version + "." + AtKit.internal.__build }).appendTo("#sbar");		
-					
-					
+		
 	
 			// add the close button (if we have been told to use this)
 			if( API.settings.allowclose ){
@@ -321,7 +317,7 @@
 			}
 		}
 		
-		// Apple the CSS rules that have been defined
+		// Apply the CSS rules that have been defined
 		function applyCSS(obj){
 			var cssObj = (typeof obj == "undefined") ? API.__CSS : obj;
 			for(c in cssObj){
