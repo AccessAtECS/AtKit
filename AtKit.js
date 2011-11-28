@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 194, // Build.
+			__build: 197, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__pluginURL: "http://plugins.atbar.org/",
@@ -325,7 +325,13 @@
 		function applyCSS(obj){
 			var cssObj = (typeof obj == "undefined") ? API.__CSS : obj;
 			for(c in cssObj){
-				if($( c ).length > 0) $( c ).attr('style', cssObj[c]);
+				if(/:active/.test( c ) || $( c ).length == 0) continue;
+				
+				try { 
+					$( c ).attr('style', cssObj[c]);
+				} catch(e){
+					debug(e.description);	
+				}
 			}
 		}
 		
