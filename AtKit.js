@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 198, // Build.
+			__build: 201, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__pluginURL: "http://plugins.atbar.org/",
@@ -141,6 +141,7 @@
 					debug('jQuery already loaded, v' + jQversion);
 				
 					if(jQversion > 1.5) {
+						debug('loaded version acceptable, using.');
 						API.$ = $ = window.$;
 						
 						// Load facebox.
@@ -148,6 +149,9 @@
 						
 						broadcastLoaded();
 						return;
+					} else {
+						window._jQuery = window.jQuery;
+						window.jQuery = null;
 					}
 				} catch(e){}
 			}
@@ -173,13 +177,15 @@
 			}
 			
 			// Check to see if jQuery has loaded. If not set a timer and increment the loadAttempts (so we don't flood the user if site is inacessible)
-			if ( typeof jQuery == 'undefined' ) {
+			if ( typeof window.jQuery == 'undefined' || window.jQuery == null ) {
 				debug('waitForLib: jQuery undefined.');
 				setTimeout(function(){ waitForLib() }, 100);
 				AtKit.internal.__loadAttempts++;
 			} else {
 				// Bind jQuery to internal namespace.
-				API.$ = $ = jQuery.noConflict(); 
+				console.log(window.jQuery);
+				API.$ = $ = window.jQuery.noConflict();
+				if(typeof window._jQuery != "undefined") window.jQuery = window._jQuery;
 				
 				// Load facebox.
 				loadFacebox();
