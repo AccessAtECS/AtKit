@@ -183,7 +183,6 @@
 				AtKit.internal.__loadAttempts++;
 			} else {
 				// Bind jQuery to internal namespace.
-				console.log(window.jQuery);
 				API.$ = $ = window.jQuery.noConflict();
 				if(typeof window._jQuery != "undefined") window.jQuery = window._jQuery;
 				
