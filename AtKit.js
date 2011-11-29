@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 201, // Build.
+			__build: 202, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__pluginURL: "http://plugins.atbar.org/",
@@ -354,6 +354,8 @@
 			
 			// Append AtKit text
 			AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBAboutFooter'>Powered by <a href='http://kit.atbar.org/'>AtKit</a> " + AtKit.internal.versionString;
+
+			if(/https:/.test( getProtocol() )) AtKit.internal.__aboutDialog.HTML += "<br />Running in secure (SSL) mode";
 			
 			var plugins = API.listPlugins();
 			
