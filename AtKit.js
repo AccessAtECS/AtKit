@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 197, // Build.
+			__build: 201, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__pluginURL: "http://plugins.atbar.org/",
@@ -141,14 +141,17 @@
 					debug('jQuery already loaded, v' + jQversion);
 				
 					if(jQversion > 1.5) {
-						$ = window.$;
-						API.$ = $;
+						debug('loaded version acceptable, using.');
+						API.$ = $ = window.$;
 						
 						// Load facebox.
 						loadFacebox();
 						
 						broadcastLoaded();
 						return;
+					} else {
+						window._jQuery = window.jQuery;
+						window.jQuery = null;
 					}
 				} catch(e){}
 			}
@@ -174,15 +177,14 @@
 			}
 			
 			// Check to see if jQuery has loaded. If not set a timer and increment the loadAttempts (so we don't flood the user if site is inacessible)
-			if ( typeof jQuery == 'undefined' ) {
+			if ( typeof window.jQuery == 'undefined' || window.jQuery == null ) {
 				debug('waitForLib: jQuery undefined.');
 				setTimeout(function(){ waitForLib() }, 100);
 				AtKit.internal.__loadAttempts++;
 			} else {
 				// Bind jQuery to internal namespace.
-				// From now on, to access jQuery, we use API.lib() (binds to $).
-				$ = jQuery.noConflict();
-				API.$ = $;
+				API.$ = $ = window.jQuery.noConflict();
+				if(typeof window._jQuery != "undefined") window.jQuery = window._jQuery;
 				
 				// Load facebox.
 				loadFacebox();
@@ -277,8 +279,7 @@
 			).appendTo('#sbar');
 			
 			$("<img>", { "src": AtKit.internal.__APIURL + "stat.php?channel=" + AtKit.internal.__channel + "&version=" + AtKit.internal.__version + "." + AtKit.internal.__build }).appendTo("#sbar");		
-					
-					
+		
 	
 			// add the close button (if we have been told to use this)
 			if( API.settings.allowclose ){
@@ -321,7 +322,7 @@
 			}
 		}
 		
-		// Apple the CSS rules that have been defined
+		// Apply the CSS rules that have been defined
 		function applyCSS(obj){
 			var cssObj = (typeof obj == "undefined") ? API.__CSS : obj;
 			for(c in cssObj){
