@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 213, // Build.
+			__build: 225, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__pluginURL: "http://plugins.atbar.org/",
@@ -36,9 +36,6 @@
 			language:'GB', // ISO 3166-1 alpha-2
 			defaultLanguage: 'GB'
 		}
-	
-		// If we need to change any URL's because of SSL, we should do it at this stage.
-		checkSSLMode();
 	
 		AtKit.internal.__resourceURL = AtKit.internal.__baseURL;
 		AtKit.internal.__resourceURL += AtKit.internal.__channel;
@@ -102,6 +99,9 @@
 			},
 			$: '' // Library used for the Toolbar
 		}
+
+		// Manipulate variables based on environment
+		preboot();
 		
 		//////////////////////////////
 		// Private internal methods //
@@ -115,8 +115,8 @@
 	
 			// Don't load if we're not the top window (running in an iframe)
 			if(API.settings.noiframe && window != window.top) return;
-	
-			showLoader();
+
+			if(window['AtKitLoaded'] != "undefined") showLoader();
 
 			// Set window, if we're running in GreaseMonkey, we'll need access to unsafeWindow rather than window.
 			if(typeof unsafeWindow == "undefined"){
@@ -270,6 +270,8 @@
 			// If we're already invoked ignore.
 			if( AtKit.internal.__invoked ) return;
 			
+			if(API.$("#sbarGhost").length == 0) showLoader();
+
 			// Insert the bar holder 
 			API.$( API.$('<div>', { id: 'sbar' }) ).insertAfter("#sbarGhost");
 			
@@ -380,7 +382,7 @@
 			return AtKit.internal.__protocol;
 		}
 		
-		function checkSSLMode(){
+		function preboot(){
 			// If we're running in SSL mode we need to change the endpoints to the SSL endpoint otherwise we'll get a security warning.
 			var protocol = getProtocol();
 			
@@ -419,8 +421,19 @@
 			barGhost.id = "sbarGhost";
 			barGhost.innerHTML = API.__templates.barGhost;
 			
-			// Insert it as the first node in the body node.
-			document.body.insertBefore(barGhost, document.body.firstChild);
+			if(document.body != null){
+				document.body.insertBefore(barGhost, document.body.firstChild);
+			} else {
+				var bodyCheck = setInterval(function(){
+					if(document.body != null){
+						// Insert it as the first node in the body node.
+						document.body.insertBefore(barGhost, document.body.firstChild);
+						clearInterval(bodyCheck);
+						console.log('clear interval');
+					}
+				}, 100);
+			}
+			
 		}
 	
 		// Attach a javascript file to the DOM
