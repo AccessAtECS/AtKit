@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 211, // Build.
+			__build: 213, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__pluginURL: "http://plugins.atbar.org/",
@@ -33,7 +33,7 @@
 			plugins:{}, // Plugins
 			localisations: {},
 			debugCallback: null,
-			language:'GB',
+			language:'GB', // ISO 3166-1 alpha-2
 			defaultLanguage: 'GB'
 		}
 	
@@ -48,7 +48,7 @@
 		AtKit.internal.__aboutDialog = {
 			CSS: {
 				"#ATKFBAbout" : "font-family:Helvetica, Verdana, Arial, sans-serif;font-size:12px;color:#364365;",
-				"#ATKFBAbout h1" : "border-bottom:1px solid #DDD;font-size:16px;margin-bottom:5px;margin-top:10px;padding-bottom:5px",
+				"#ATKFBAbout h2" : "border-bottom:1px solid #DDD;font-size:16px;margin-bottom:5px;margin-top:10px;padding-bottom:5px",
 				"#ATKFBAbout p#ATKFBAboutFooter" : "border-top:1px solid #DDD;padding-top:10px;margin-top:25px;"
 			}
 		}
@@ -116,6 +116,8 @@
 			// Don't load if we're not the top window (running in an iframe)
 			if(API.settings.noiframe && window != window.top) return;
 	
+			showLoader();
+
 			// Set window, if we're running in GreaseMonkey, we'll need access to unsafeWindow rather than window.
 			if(typeof unsafeWindow == "undefined"){
 				AtKit.external.window = window;
@@ -268,8 +270,6 @@
 			// If we're already invoked ignore.
 			if( AtKit.internal.__invoked ) return;
 			
-			if(API.$("#sbarGhost").length == 0) showLoader();
-			
 			// Insert the bar holder 
 			API.$( API.$('<div>', { id: 'sbar' }) ).insertAfter("#sbarGhost");
 			
@@ -349,7 +349,7 @@
 		
 		function showAbout(){
 			// Create the dialog
-			AtKit.internal.__aboutDialog.HTML = "<h1>About " + API.settings.name + "</h1>";
+			AtKit.internal.__aboutDialog.HTML = "<h2>About " + API.settings.name + "</h2>";
 			
 			// Append user text
 			AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBUserSpecifiedAbout'>" + API.settings.about + "</p>";
