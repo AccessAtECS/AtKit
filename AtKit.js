@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 225, // Build.
+			__build: 227, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__pluginURL: "http://plugins.atbar.org/",
@@ -137,12 +137,12 @@
 			if(typeof window.jQuery != "undefined"){
 				try {
 					// We need jQuery 1.5 or above. Get the version string.
-					jQversion = parseFloat(window.$().jquery.match(/\d\.\d/));
+					jQversion = parseFloat(window.jQuery().jquery.match(/\d\.\d/));
 					debug('jQuery already loaded, v' + jQversion);
 				
 					if(jQversion > 1.5) {
 						debug('loaded version acceptable, using.');
-						API.$ = window.$;
+						API.$ = window.jQuery;
 						
 						// Load facebox.
 						loadFacebox();
@@ -429,7 +429,6 @@
 						// Insert it as the first node in the body node.
 						document.body.insertBefore(barGhost, document.body.firstChild);
 						clearInterval(bodyCheck);
-						console.log('clear interval');
 					}
 				}, 100);
 			}
