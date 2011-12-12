@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 229, // Build.
+			__build: 233, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__pluginURL: "http://plugins.atbar.org/",
@@ -116,7 +116,7 @@
 			// Don't load if we're not the top window (running in an iframe)
 			if(API.settings.noiframe && window != window.top) return;
 
-			if(window['AtKitLoaded'] != "undefined") showLoader();
+			if(typeof window['AtKitLoaded'] != "undefined") showLoader();
 
 			// Set window, if we're running in GreaseMonkey, we'll need access to unsafeWindow rather than window.
 			if(typeof unsafeWindow == "undefined"){
