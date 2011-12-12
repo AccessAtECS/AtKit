@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 211, // Build.
+			__build: 233, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__pluginURL: "http://plugins.atbar.org/",
@@ -33,12 +33,9 @@
 			plugins:{}, // Plugins
 			localisations: {},
 			debugCallback: null,
-			language:'GB',
+			language:'GB', // ISO 3166-1 alpha-2
 			defaultLanguage: 'GB'
 		}
-	
-		// If we need to change any URL's because of SSL, we should do it at this stage.
-		checkSSLMode();
 	
 		AtKit.internal.__resourceURL = AtKit.internal.__baseURL;
 		AtKit.internal.__resourceURL += AtKit.internal.__channel;
@@ -48,7 +45,7 @@
 		AtKit.internal.__aboutDialog = {
 			CSS: {
 				"#ATKFBAbout" : "font-family:Helvetica, Verdana, Arial, sans-serif;font-size:12px;color:#364365;",
-				"#ATKFBAbout h1" : "border-bottom:1px solid #DDD;font-size:16px;margin-bottom:5px;margin-top:10px;padding-bottom:5px",
+				"#ATKFBAbout h2" : "border-bottom:1px solid #DDD;font-size:16px;margin-bottom:5px;margin-top:10px;padding-bottom:5px",
 				"#ATKFBAbout p#ATKFBAboutFooter" : "border-top:1px solid #DDD;padding-top:10px;margin-top:25px;"
 			}
 		}
@@ -102,6 +99,9 @@
 			},
 			$: '' // Library used for the Toolbar
 		}
+
+		// Manipulate variables based on environment
+		preboot();
 		
 		//////////////////////////////
 		// Private internal methods //
@@ -115,7 +115,9 @@
 	
 			// Don't load if we're not the top window (running in an iframe)
 			if(API.settings.noiframe && window != window.top) return;
-	
+
+			if(typeof window['AtKitLoaded'] != "undefined") showLoader();
+
 			// Set window, if we're running in GreaseMonkey, we'll need access to unsafeWindow rather than window.
 			if(typeof unsafeWindow == "undefined"){
 				AtKit.external.window = window;
@@ -135,12 +137,12 @@
 			if(typeof window.jQuery != "undefined"){
 				try {
 					// We need jQuery 1.5 or above. Get the version string.
-					jQversion = parseFloat(window.$().jquery.match(/\d\.\d/));
+					jQversion = parseFloat(window.jQuery().jquery.match(/\d\.\d/));
 					debug('jQuery already loaded, v' + jQversion);
 				
 					if(jQversion > 1.5) {
 						debug('loaded version acceptable, using.');
-						API.$ = window.$;
+						API.$ = window.jQuery;
 						
 						// Load facebox.
 						loadFacebox();
@@ -269,7 +271,7 @@
 			if( AtKit.internal.__invoked ) return;
 			
 			if(API.$("#sbarGhost").length == 0) showLoader();
-			
+
 			// Insert the bar holder 
 			API.$( API.$('<div>', { id: 'sbar' }) ).insertAfter("#sbarGhost");
 			
@@ -280,7 +282,7 @@
 				)
 			).appendTo('#sbar');
 			
-			API.$("<img>", { "src": AtKit.internal.__APIURL + "stat.php?channel=" + AtKit.internal.__channel + "&version=" + AtKit.internal.__version + "." + AtKit.internal.__build }).appendTo("#sbar");		
+			API.$("<img>", { "src": AtKit.internal.__APIURL + "stat.php?channel=" + AtKit.internal.__channel + "-" + API.settings.name + "&version=" + AtKit.internal.__version.toFixed(1) + "." + AtKit.internal.__build }).appendTo("#sbar");		
 		
 	
 			// add the close button (if we have been told to use this)
@@ -349,7 +351,7 @@
 		
 		function showAbout(){
 			// Create the dialog
-			AtKit.internal.__aboutDialog.HTML = "<h1>About " + API.settings.name + "</h1>";
+			AtKit.internal.__aboutDialog.HTML = "<h2>About " + API.settings.name + "</h2>";
 			
 			// Append user text
 			AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBUserSpecifiedAbout'>" + API.settings.about + "</p>";
@@ -380,7 +382,7 @@
 			return AtKit.internal.__protocol;
 		}
 		
-		function checkSSLMode(){
+		function preboot(){
 			// If we're running in SSL mode we need to change the endpoints to the SSL endpoint otherwise we'll get a security warning.
 			var protocol = getProtocol();
 			
@@ -419,8 +421,18 @@
 			barGhost.id = "sbarGhost";
 			barGhost.innerHTML = API.__templates.barGhost;
 			
-			// Insert it as the first node in the body node.
-			document.body.insertBefore(barGhost, document.body.firstChild);
+			if(document.body != null){
+				document.body.insertBefore(barGhost, document.body.firstChild);
+			} else {
+				var bodyCheck = setInterval(function(){
+					if(document.body != null){
+						// Insert it as the first node in the body node.
+						document.body.insertBefore(barGhost, document.body.firstChild);
+						clearInterval(bodyCheck);
+					}
+				}, 100);
+			}
+			
 		}
 	
 		// Attach a javascript file to the DOM
