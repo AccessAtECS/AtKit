@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 233, // Build.
+			__build: 239, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__pluginURL: "http://plugins.atbar.org/",
@@ -472,6 +472,10 @@
 
 		API.getResourceURL = function(){
 			return AtKit.internal.__resourceURL;
+		}
+		
+		API.getPluginURL = function(){
+			return AtKit.internal.__pluginURL;
 		}
 		
 		// Set toolbar name
