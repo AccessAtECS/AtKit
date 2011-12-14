@@ -13,7 +13,7 @@
 (function(AtKit) {
 	var jQ = AtKit.lib();
 
-	var baseURL = AtKit.getBaseURL() + "/presentation/images/";
+	var baseURL = AtKit.getResourceURL() + "/presentation/images/";
 
 	jQ.facebox = function(data, klass) {
 		jQ.facebox.loading()
@@ -35,9 +35,9 @@
       closeImage   : baseURL + 'closelabel.gif',
       imageTypes   : [ 'png', 'jpg', 'jpeg', 'gif' ],
       faceboxHtml  : '\
-    <div id="facebox" style="display:none;position: absolute;top:0;left: 0;z-index: 100;text-align: left;"> \
+    <div id="facebox" style="display:none;position: absolute;top:0;left: 0;z-index: 100;text-align: left;width:410px"> \
       <div class="popup" style="position: relative;"> \
-        <table style="border-collapse: collapse;"> \
+        <table style="border-collapse: collapse;border:none"> \
           <tbody> \
             <tr> \
               <td class="tl" style="background:url(' + baseURL + '/tl.png); border: 0 none; border-bottom: 0;padding: 0;height: 10px;width: 10px;overflow: hidden;padding: 0;" /><td class="b" style="background:url(' + baseURL + '/b.png); border: 0 none; border-bottom: 0;padding: 0;" /><td class="tr" style="background:url(' + baseURL + '/tr.png); border: 0 none;height: 10px;width: 10px;overflow: hidden;padding: 0;" /> \
