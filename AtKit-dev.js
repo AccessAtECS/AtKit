@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 242, // Build.
+			__build: 247, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__pluginURL: "http://plugins.atbar.org/",
@@ -87,7 +87,8 @@
 				".at-btn a:active": "border:yellow solid 2px;",
 				".at-btn img": "margin:0;padding:6px;border:none;background:none;",
 				"#at-btn-atkit-reset, #at-btn-atkit-unload": "height:28px;width:28px;line-height:14px;text-align:center;color:#FFF;clear:none;float:right;margin:5px 10px 0 0;background:url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat;",
-				"#facebox button": "height:26px;margin:10px;padding:5px;color:white;background-color:#0064CD;border-color:rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);text-shadow:0 -1px 0 rgba(0,0,0,0.25);background-image: -webkit-linear-gradient(top, #049cdb, #0064cd);border-radius:4px"
+				"#facebox button": "height:26px;margin:10px;padding:5px;color:white;background-color:#0064CD;border-color:rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);text-shadow:0 -1px 0 rgba(0,0,0,0.25);background-image: -webkit-linear-gradient(top, #049cdb, #0064cd);border-radius:4px",
+				"#facebox h2": "font-size:18pt;font-weight:bold;color:black"
 			},
 			settings: {
 				'noiframe': true, // Don't load if we're in an iframe.
@@ -324,6 +325,8 @@
 			API.__env.global.resetFn['default'] = function(){
 				location.reload(true);
 			}
+			
+			API.$('body').trigger('AtKitRenderComplete');
 		}
 		
 		// Apply the CSS rules that have been defined
