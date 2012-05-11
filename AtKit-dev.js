@@ -17,21 +17,26 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 247, // Build.
+			__build: 251, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__pluginURL: "http://plugins.atbar.org/",
 			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
 			__channel: "atkit", // Release channel we're running in for this version of AtKit.
 			__invoked: false, // Is the framework already loaded?
-			__debug: true, // Debug mode on or off.
+			__debug: false, // Debug mode on or off.
 			__loadAttempts: 0, // Container for number of load attempts
 			__maxLoadAttempts: 30, // Maximum number of times we'll try and load the library (one try every 500ms)
 			__errorMessageTimeout: 2000, // Time before error message will disapear.
 			__localStorageNamespace: "AtKit_", // Name to use for HTML5 localstorage namespace
 			__protocol: null, // HTTPS or HTTP
 			plugins:{}, // Plugins
-			localisations: {},
+			localisations: {
+				"GB": {
+					"exit": "Exit",
+					"reset": "Reset webpage"
+				}
+			},
 			debugCallback: null,
 			language:'GB', // ISO 3166-1 alpha-2
 			defaultLanguage: 'GB'
@@ -288,12 +293,12 @@
 	
 			// add the close button (if we have been told to use this)
 			if( API.settings.allowclose ){
-				API.addButton('atkit-unload', 'Exit', AtKit.internal.__assetURL + 'images/close.png', function(){ API.close(); }, null, null, {'cssClass':'fright'});
+				API.addButton('atkit-unload', API.localisation("exit"), AtKit.internal.__assetURL + 'images/close.png', function(){ API.close(); }, null, null, {'cssClass':'fright'});
 			}
 					
 			// add the reset button (if we have been told to use this)
 			if( API.settings.allowreset ){
-				API.addButton('atkit-reset', 'Reset webpage', AtKit.internal.__assetURL + 'images/reset.png', function(){ API.reset(); }, null, null, {'cssClass':'fright'});
+				API.addButton('atkit-reset', API.localisation("reset"), AtKit.internal.__assetURL + 'images/reset.png', function(){ API.reset(); }, null, null, {'cssClass':'fright'});
 			}
 				
 			// Add buttons.
