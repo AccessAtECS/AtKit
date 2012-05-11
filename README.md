@@ -1,7 +1,7 @@
 [AtKit](http://api.atbar.org/)
 =================
 
-AtKit is a JavaScript + jQuery toolkit for building cross-platform browser toolbars. AtKit toolbars require no client installation, and can run from the user's browser (a bookmarklet), or built into a webpage. To see an example of a toolbar created with AtKit see [AtBar](http://www.atbar.org/).
+AtKit is a JavaScript + jQuery toolkit for building cross-platform browser toolbars. AtKit toolbars require no client installation, and can run from the user's browser (a bookmarklet), or built into a webpage. To see an example of a toolbar created with AtKit see [ATBar](http://www.atbar.org/).
 
 
 
