@@ -140,6 +140,7 @@ This file does two things:
 + Tells AtKit to load a set of plugins, and then render to the page.
 
 **How to use**
+
 To run the toolbar, create a link with the following href:
 
 `javascript:(function()%7Bd=document;jf=d.createElement('script');jf.src='http://www.example.com/path/to/toolbar.user.js';jf.type='text/javascript';jf.id='ToolBar';d.getElementsByTagName('head')%5B0%5D.appendChild(jf);%7D)();`
