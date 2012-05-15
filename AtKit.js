@@ -110,21 +110,26 @@
 		}
 
 		function plugin(){
-			// Events
-			this.onLoad = null;
-			this.onHover = null;
-			this.onRender = null;
-			this.onFocus = null;
-			this.onFocusout = null;
-			
-			// States
-			this.selected = false;
-			this.enabled = true;
-			
 			// Data & settings
+			this.name = "";
 			this.aboutDialog = "";
 			this.settings = {};
 			this.version = 0;
+			
+			// Events
+			this.onRender = function(){};
+			this.onRun = function(){};
+			
+			// Attach to AtKit
+			this.attach = function(){
+				AtKit.registerPlugin(this.name, this);
+			};
+			
+			
+			// Fired by AtKit when we are ready to render plugin.
+			this.run = function(){
+				this.onRun();
+			};
 		}
 
 		// Manipulate variables based on environment
