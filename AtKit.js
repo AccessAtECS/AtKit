@@ -110,12 +110,21 @@
 		}
 
 		function plugin(){
-			this.onLoad = function(){};
-			this.onHover = function(){};
-			this.onRender = function(){};
+			// Events
+			this.onLoad = null;
+			this.onHover = null;
+			this.onRender = null;
+			this.onFocus = null;
+			this.onFocusout = null;
 			
+			// States
+			this.selected = false;
+			this.enabled = true;
+			
+			// Data & settings
 			this.aboutDialog = "";
 			this.settings = {};
+			this.version = 0;
 		}
 
 		// Manipulate variables based on environment
