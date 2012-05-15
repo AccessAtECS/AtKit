@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 266, // Build.
+			__build: 268, // Build.
 			__APIVersion: 1.0, // The version of the API.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
@@ -361,6 +361,12 @@
 			}
 			
 			// Cleanup.
+			
+			// Reset language
+			AtKit.internal.language = AtKit.internal.defaultLanguage;
+			
+			// Reset debug callback
+			AtKit.internal.debugCallback = null;
 			
 			// Reset any stored global settings.
 			API.__env.global = AtKit.internal.templates.global;
