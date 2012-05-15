@@ -374,6 +374,9 @@
 			// Reset site fixes.
 			API.__env.siteFixes = [];
 			
+			// Reset plugins
+			AtKit.internal.plugins = {};
+			
 			// Set not invoked.
 			AtKit.internal.__invoked = false;
 		}
