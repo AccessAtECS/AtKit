@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 251, // Build.
+			__build: 266, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__pluginURL: "http://plugins.atbar.org/",
@@ -35,6 +35,16 @@
 				"GB": {
 					"exit": "Exit",
 					"reset": "Reset webpage"
+				}
+			},
+			templates:{
+				"global": {
+					buttons: {},
+					dialogs: {}, // Global dialogs (can be called through API.show)
+					storage: {}, // Global settings (API.set() API.get())
+					fn: {}, // Global functions (can be called through API.call)
+					unloadFn: {}, // Functions to run when we unload
+					resetFn: {}
 				}
 			},
 			debugCallback: null,
@@ -59,14 +69,7 @@
 		AtKit.external = AtKit.prototype = {
 			transport: 'JSONP', // AJAX transport method.
 			window: window, // Reference for the window object we're using.
-			global: {
-				buttons: {},
-				dialogs: {}, // Global dialogs (can be called through API.show)
-				storage: {}, // Global settings (API.set() API.get())
-				fn: {}, // Global functions (can be called through API.call)
-				unloadFn: {}, // Functions to run when we unload
-				resetFn: {}
-			},
+			global: AtKit.internal.templates.global,
 			buttons: {}, // Object for every button. Object with the layout: { identifier: { function: function(), tip: 'tip', state: 'enabled' } }
 			languageMap: {}, // Translations
 			siteFixes: [] // Contains object for each site {regex: /regex/, function: function()} //
@@ -354,6 +357,22 @@
 			for(f in API.__env.global.unloadFn){
 				API.__env.global.unloadFn[f]();
 			}
+			
+			// Cleanup.
+			
+			// Reset any stored global settings.
+			API.__env.global = AtKit.internal.templates.global;
+			
+			// Reset buttons.
+			API.__env.buttons = {};
+			
+			// Reset any language maps defined.
+			API.__env.languageMap = {};
+			
+			// Reset site fixes.
+			API.__env.siteFixes = [];
+			
+			// Set not invoked.
 			AtKit.internal.__invoked = false;
 		}
 		
