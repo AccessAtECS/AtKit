@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 266, // Build.
+			__build: 270, // Build.
 			__APIVersion: 1.0, // The version of the API.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
@@ -105,7 +105,17 @@
 				"about": ''
 			},
 			version: AtKit.internal.__APIVersion,
-			$: '' // Library used for the Toolbar
+			$: '', // Library used for the Toolbar
+			plugin: function(){ return new plugin(); }
+		}
+
+		function plugin(){
+			this.onLoad = function(){};
+			this.onHover = function(){};
+			this.onRender = function(){};
+			
+			this.aboutDialog = "";
+			this.settings = {};
 		}
 
 		// Manipulate variables based on environment
@@ -374,7 +384,11 @@
 			var plugins = API.listPlugins();
 			
 			if(plugins.length > 0){
-				AtKit.internal.__aboutDialog.HTML += "<br /> Registered plugins: " + plugins.join(", ");
+				AtKit.internal.__aboutDialog.HTML += "<br /> Registered plugins: ";
+
+				plugins.map(function(el, index, fullList){
+					AtKit.internal.__aboutDialog.HTML += "<button class='pluginLink'>" + el + "</button>";
+				});
 			}
 			
 			AtKit.internal.__aboutDialog.HTML += "</p>";
