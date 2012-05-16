@@ -88,7 +88,7 @@
 				"separator": '<div class="at-separator"></div>'
 			},
 			__CSS: {
-				"#sbar": "height:40px;left:0;line-height:40px;margin-left:auto;margin-right:auto;margin-top:0;position:fixed;top:0;width:100%;z-index:9999998;padding:0 5px;background:url(" + AtKit.internal.__assetURL + "images/background.png) repeat-x #EBEAED;",
+				"#sbar": "height:40px;left:0;line-height:40px;margin-left:auto;margin-right:auto;margin-top:0;position:fixed;top:0;width:100%;z-index:2147483646;padding:0 5px;background:url(" + AtKit.internal.__assetURL + "images/background.png) repeat-x #EBEAED;",
 				"#sbarGhost": "height:40px;width:100%;",
 				".at-spacer": "display:block;height:40px;width:40px;float:left",
 				".at-separator": "display:block;height:25px;float:left;border-left:2px solid #a9a9a9;margin:7px 1px 4px 7px",
