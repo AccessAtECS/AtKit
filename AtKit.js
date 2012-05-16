@@ -16,7 +16,7 @@
 	
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
-			__version: 1.0, // Version.
+			__version: 1.1, // Version.
 			__build: 270, // Build.
 			__APIVersion: 1.0, // The version of the API.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
@@ -107,12 +107,12 @@
 			},
 			version: AtKit.internal.__APIVersion,
 			$: '', // Library used for the Toolbar
-			plugin: function(){ return new plugin(); }
+			plugin: function(name){ return new plugin(name); }
 		}
 
-		function plugin(){
+		function plugin(name){
 			// Data & settings
-			this.name = "";
+			this.name = name;
 			this.aboutDialog = "";
 			this.settings = {};
 			this.version = 0;
