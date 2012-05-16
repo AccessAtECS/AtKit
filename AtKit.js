@@ -116,10 +116,11 @@
 			this.aboutDialog = "";
 			this.settings = {};
 			this.version = 0;
+			var $ = API.$;
 			
 			// Events
-			this.onRender = function(){};
-			this.onRun = function(){};
+			this.onRender = function($){};
+			this.onRun = function($){};
 			
 			// Attach to AtKit
 			this.attach = function(){
@@ -129,8 +130,12 @@
 			
 			// Fired by AtKit when we are ready to render plugin.
 			this.run = function(){
-				this.onRun();
+				this.onRun($);
 			};
+			
+			this.render = function(){
+				this.onRender($);
+			}
 		}
 
 		// Manipulate variables based on environment
