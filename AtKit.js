@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.0, // Version.
-			__build: 251, // Build.
+			__build: 255, // Build.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
 			__pluginURL: "http://plugins.atbar.org/",
@@ -65,7 +65,8 @@
 				storage: {}, // Global settings (API.set() API.get())
 				fn: {}, // Global functions (can be called through API.call)
 				unloadFn: {}, // Functions to run when we unload
-				resetFn: {}
+				resetFn: {},
+				closeFn: {}
 			},
 			buttons: {}, // Object for every button. Object with the layout: { identifier: { function: function(), tip: 'tip', state: 'enabled' } }
 			languageMap: {}, // Translations
