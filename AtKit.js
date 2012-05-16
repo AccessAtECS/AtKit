@@ -66,7 +66,8 @@
 				storage: {}, // Global settings (API.set() API.get())
 				fn: {}, // Global functions (can be called through API.call)
 				unloadFn: {}, // Functions to run when we unload
-				resetFn: {}
+				resetFn: {},
+				closeFn: {}
 			},
 			buttons: {}, // Object for every button. Object with the layout: { identifier: { function: function(), tip: 'tip', state: 'enabled' } }
 			languageMap: {}, // Translations
