@@ -17,7 +17,7 @@
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
 			__version: 1.1, // Version.
-			__build: 270, // Build.
+			__build: 278, // Build.
 			__APIVersion: 1.0, // The version of the API.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
@@ -98,9 +98,10 @@
 				"#facebox h2": "font-size:18pt;font-weight:bold;color:black"
 			},
 			settings: {
-				'noiframe': true, // Don't load if we're in an iframe.
-				'allowclose': true, // Enable the close button
-				'allowreset': true, // Allow the page reset button
+				"noiframe": true, // Don't load if we're in an iframe.
+				"allowclose": true, // Enable the close button
+				"allowreset": true, // Allow the page reset button
+				"isRightToLeft": false, // Switch for changing to right to left orientation
 				"logoURL": '', 
 				"name": '',
 				"about": ''
@@ -377,6 +378,23 @@
 			for(c in cssObj){
 				if(/:active/.test( c ) || API.$( c ).length == 0) continue;
 				try {
+					// Are we running in RTL mode?
+					if(API.settings.isRightToLeft) {
+						var floatRight = "float:right";
+						var floatLeft = "float:left";
+						
+						// Does the string contain floatleft?
+						if(cssObj[c].indexOf(floatLeft) != -1){
+							var match = new RegExp("/" + floatLeft + "/gi");
+							cssObj[c] = cssObj[c].replace(match, floatRight);
+						} else if(cssObj[c].indexOf(floatRight) != -1){
+							// Does it contain floatright? if so switch.
+							var match = new RegExp("/" + floatRight + "/gi");
+							cssObj[c] = cssObj[c].replace(match, floatLeft);
+						}
+					}
+					
+					// Apply the CSS
 					API.$( c ).attr('style', cssObj[c]);
 				} catch(e){
 					debug(e.description);	
@@ -538,6 +556,11 @@
 		// Set toolbar logo
 		API.setLogo = function(logo){
 			API.settings.logoURL = logo;
+		}
+		
+		// Set whether the toolbar is running in RTL mode.
+		API.setIsRightToLeft = function(isRTL){
+			API.settings.isRightToLeft = isRTL;
 		}
 		
 		// Add a CSS rule. Identifier is a jQuery selector expression, eg #bar. inlineStyle appears in the style attr in the DOM.
