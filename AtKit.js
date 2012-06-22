@@ -113,6 +113,7 @@
 		function plugin(name){
 			// Data & settings
 			this.name = name;
+			this.supportedLanguages = [];
 			this.aboutDialog = "";
 			this.settings = {};
 			this.version = 0;
@@ -122,17 +123,20 @@
 			this.onRender = function($){};
 			this.onRun = function($){};
 			
-			// Attach to AtKit
-			this.attach = function(){
+			// Register plugin
+			this.register = function(){
 				AtKit.registerPlugin(this.name, this);
 			};
 			
 			
 			// Fired by AtKit when we are ready to render plugin.
+			// Don't call this yourself.
 			this.run = function(){
 				this.onRun($);
 			};
 			
+			// Fired by AtKit when we actually render.
+			// Don't call this yourself.
 			this.render = function(){
 				this.onRender($);
 			}
