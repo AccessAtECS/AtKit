@@ -104,6 +104,7 @@
 				'noiframe': true, // Don't load if we're in an iframe.
 				'allowclose': true, // Enable the close button
 				'allowreset': true, // Allow the page reset button
+				"isRightToLeft": false, // Switch for changing to right to left orientation
 				"logoURL": '', 
 				"name": '',
 				"about": ''
@@ -347,6 +348,23 @@
 			for(c in cssObj){
 				if(/:active/.test( c ) || API.$( c ).length == 0) continue;
 				try {
+					// Are we running in RTL mode?
+					if(API.settings.isRightToLeft) {
+						var floatRight = "float:right";
+						var floatLeft = "float:left";
+						
+						// Does the string contain floatleft?
+						if(cssObj[c].indexOf(floatLeft) != -1){
+							var match = new RegExp("/" + floatLeft + "/gi");
+							cssObj[c] = cssObj[c].replace(match, floatRight);
+						} else if(cssObj[c].indexOf(floatRight) != -1){
+							// Does it contain floatright? if so switch.
+							var match = new RegExp("/" + floatRight + "/gi");
+							cssObj[c] = cssObj[c].replace(match, floatLeft);
+						}
+					}
+					
+					// Apply the CSS
 					API.$( c ).attr('style', cssObj[c]);
 				} catch(e){
 					debug(e.description);	
@@ -534,6 +552,11 @@
 		// Add a CSS rule. Identifier is a jQuery selector expression, eg #bar. inlineStyle appears in the style attr in the DOM.
 		API.setCSS = function(identifier, inlineStyle){
 			API.__CSS[identifier] = inlineStyle;
+		}
+
+		// Set whether the toolbar is running in RTL mode.
+		API.setIsRightToLeft = function(isRTL){
+			API.settings.isRightToLeft = isRTL;
 		}
 		
 		// Set the language that this toolbar uses
