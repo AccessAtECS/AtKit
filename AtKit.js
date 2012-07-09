@@ -319,9 +319,13 @@
 			API.$( API.$('<div>', { id: 'sbar' }) ).insertAfter("#sbarGhost");
 			
 			// Insert the logo.
+			
+			// Are we in RTL mode? Work out where we should be positioned.
+			var align = API.settings.isRightToLeft ? "right" : "left";
+			
 			API.$(
 				API.$("<a>", { id: 'sbarlogo', click: function(){ showAbout() } }).append(
-					API.$("<img>", { "src": API.settings.logoURL, "align": "left", "border": "0", "title": API.settings.name + "Logo", "style": "float:left;margin-top:10px;" }) 
+					API.$("<img>", { "src": API.settings.logoURL, "align": align, "border": "0", "title": API.settings.name + "Logo", "style": "margin-top:10px;float:" + align }) 
 				)
 			).appendTo('#sbar');
 			
@@ -378,26 +382,28 @@
 			for(c in cssObj){
 				if(/:active/.test( c ) || API.$( c ).length == 0) continue;
 				try {
+					
+					// Get CSS item
+					var property = cssObj[c];
+					
 					// Are we running in RTL mode?
 					if(API.settings.isRightToLeft) {
 						var floatRight = "float:right";
 						var floatLeft = "float:left";
-						
+
 						// Does the string contain floatleft?
-						if(cssObj[c].indexOf(floatLeft) != -1){
+						if(property.indexOf(floatLeft) != -1){
 							var match = new RegExp(floatLeft, "gi");
-							console.log(match);
-							cssObj[c] = cssObj[c].replace(match, floatRight);
-							console.log(cssObj[c].replace(match, floatRight));
-						} else if(cssObj[c].indexOf(floatRight) != -1){
+							property = property.replace(match, floatRight);
+						} else if(property.indexOf(floatRight) != -1){
 							// Does it contain floatright? if so switch.
 							var match = new RegExp(floatRight, "gi");
-							cssObj[c] = cssObj[c].replace(match, floatLeft);
+							property = property.replace(match, floatLeft);
 						}
 					}
 					
 					// Apply the CSS
-					API.$( c ).attr('style', cssObj[c]);
+					API.$( c ).attr('style', property);
 				} catch(e){
 					debug(e.description);	
 				}
