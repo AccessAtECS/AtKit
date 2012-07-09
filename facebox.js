@@ -35,7 +35,7 @@
       closeImage   : baseURL + 'closelabel.gif',
       imageTypes   : [ 'png', 'jpg', 'jpeg', 'gif' ],
       faceboxHtml  : '\
-    <div id="facebox" style="display:none;position: absolute;top:0;left: 0;z-index: 100;text-align: left;width:410px"> \
+    <div id="facebox" style="display:none;position: absolute;top:0;left: 0;z-index:2147483647;text-align: left;width:410px"> \
       <div class="popup" style="position: relative;"> \
         <table style="border-collapse: collapse;border:none"> \
           <tbody> \

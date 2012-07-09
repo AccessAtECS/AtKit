@@ -16,8 +16,8 @@
 	
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
-			__version: 1.0, // Version.
-			__build: 268, // Build.
+			__version: 1.1, // Version.
+			__build: 278, // Build.
 			__APIVersion: 1.0, // The version of the API.
 			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
@@ -88,7 +88,7 @@
 				"separator": '<div class="at-separator"></div>'
 			},
 			__CSS: {
-				"#sbar": "height:40px;left:0;line-height:40px;margin-left:auto;margin-right:auto;margin-top:0;position:fixed;top:0;width:100%;z-index:9999998;padding:0 5px;background:url(" + AtKit.internal.__assetURL + "images/background.png) repeat-x #EBEAED;",
+				"#sbar": "height:40px;left:0;line-height:40px;margin-left:auto;margin-right:auto;margin-top:0;position:fixed;top:0;width:100%;z-index:2147483646;padding:0 5px;background:url(" + AtKit.internal.__assetURL + "images/background.png) repeat-x #EBEAED;",
 				"#sbarGhost": "height:40px;width:100%;",
 				".at-spacer": "display:block;height:40px;width:40px;float:left",
 				".at-separator": "display:block;height:25px;float:left;border-left:2px solid #a9a9a9;margin:7px 1px 4px 7px",
@@ -101,15 +101,49 @@
 				"#facebox h2": "font-size:18pt;font-weight:bold;color:black"
 			},
 			settings: {
-				'noiframe': true, // Don't load if we're in an iframe.
-				'allowclose': true, // Enable the close button
-				'allowreset': true, // Allow the page reset button
+				"noiframe": true, // Don't load if we're in an iframe.
+				"allowclose": true, // Enable the close button
+				"allowreset": true, // Allow the page reset button
+				"isRightToLeft": false, // Switch for changing to right to left orientation
 				"logoURL": '', 
 				"name": '',
 				"about": ''
 			},
 			version: AtKit.internal.__APIVersion,
-			$: '' // Library used for the Toolbar
+			$: '', // Library used for the Toolbar
+			plugin: function(name){ return new plugin(name); }
+		}
+
+		function plugin(name){
+			// Data & settings
+			this.name = name;
+			this.supportedLanguages = [];
+			this.aboutDialog = "";
+			this.settings = {};
+			this.version = 0;
+			var $ = API.$;
+			
+			// Events
+			this.onRender = function($){};
+			this.onRun = function($){};
+			
+			// Register plugin
+			this.register = function(){
+				AtKit.registerPlugin(this.name, this);
+			};
+			
+			
+			// Fired by AtKit when we are ready to render plugin.
+			// Don't call this yourself.
+			this.run = function(){
+				this.onRun($);
+			};
+			
+			// Fired by AtKit when we actually render.
+			// Don't call this yourself.
+			this.render = function(){
+				this.onRender($);
+			}
 		}
 
 		// Manipulate variables based on environment
@@ -288,9 +322,13 @@
 			API.$( API.$('<div>', { id: 'sbar' }) ).insertAfter("#sbarGhost");
 			
 			// Insert the logo.
+			
+			// Are we in RTL mode? Work out where we should be positioned.
+			var align = API.settings.isRightToLeft ? "right" : "left";
+			
 			API.$(
 				API.$("<a>", { id: 'sbarlogo', click: function(){ showAbout() } }).append(
-					API.$("<img>", { "src": API.settings.logoURL, "align": "left", "border": "0", "title": API.settings.name + "Logo", "style": "float:left;margin-top:10px;" }) 
+					API.$("<img>", { "src": API.settings.logoURL, "align": align, "border": "0", "title": API.settings.name + "Logo", "style": "margin-top:10px;float:" + align }) 
 				)
 			).appendTo('#sbar');
 			
@@ -346,8 +384,28 @@
 
 			for(c in cssObj){
 				if(/:active/.test( c ) || API.$( c ).length == 0) continue;
-				try {
-					API.$( c ).attr('style', cssObj[c]);
+				try {		
+					// Get CSS item
+					var property = cssObj[c];
+
+					// Are we running in RTL mode?
+					if(API.settings.isRightToLeft) {
+						var floatRight = "float:right";
+						var floatLeft = "float:left";
+
+						// Does the string contain floatleft?
+						if(property.indexOf(floatLeft) != -1){
+							var match = new RegExp(floatLeft, "gi");
+							property = property.replace(match, floatRight);
+						} else if(property.indexOf(floatRight) != -1){
+							// Does it contain floatright? if so switch.
+							var match = new RegExp(floatRight, "gi");
+							property = property.replace(match, floatLeft);
+						}
+					}
+					
+					// Apply the CSS
+					API.$( c ).attr('style', property);
 				} catch(e){
 					debug(e.description);	
 				}
@@ -403,7 +461,11 @@
 			var plugins = API.listPlugins();
 			
 			if(plugins.length > 0){
-				AtKit.internal.__aboutDialog.HTML += "<br /> Registered plugins: " + plugins.join(", ");
+				AtKit.internal.__aboutDialog.HTML += "<br /> Registered plugins: ";
+
+				plugins.map(function(el, index, fullList){
+					AtKit.internal.__aboutDialog.HTML += "<button class='pluginLink'>" + el + "</button>";
+				});
 			}
 			
 			AtKit.internal.__aboutDialog.HTML += "</p>";
@@ -531,9 +593,19 @@
 			API.settings.logoURL = logo;
 		}
 		
+		// Set whether the toolbar is running in RTL mode.
+		API.setIsRightToLeft = function(isRTL){
+			API.settings.isRightToLeft = isRTL;
+		}
+		
 		// Add a CSS rule. Identifier is a jQuery selector expression, eg #bar. inlineStyle appears in the style attr in the DOM.
 		API.setCSS = function(identifier, inlineStyle){
 			API.__CSS[identifier] = inlineStyle;
+		}
+
+		// Set whether the toolbar is running in RTL mode.
+		API.setIsRightToLeft = function(isRTL){
+			API.settings.isRightToLeft = isRTL;
 		}
 		
 		// Set the language that this toolbar uses
