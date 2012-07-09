@@ -385,11 +385,13 @@
 						
 						// Does the string contain floatleft?
 						if(cssObj[c].indexOf(floatLeft) != -1){
-							var match = new RegExp("/" + floatLeft + "/gi");
+							var match = new RegExp(floatLeft, "gi");
+							console.log(match);
 							cssObj[c] = cssObj[c].replace(match, floatRight);
+							console.log(cssObj[c].replace(match, floatRight));
 						} else if(cssObj[c].indexOf(floatRight) != -1){
 							// Does it contain floatright? if so switch.
-							var match = new RegExp("/" + floatRight + "/gi");
+							var match = new RegExp(floatRight, "gi");
 							cssObj[c] = cssObj[c].replace(match, floatLeft);
 						}
 					}
