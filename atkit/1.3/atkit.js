@@ -4,6 +4,7 @@
  *
  * Copyright (c) 2011. University of Southampton
  * Developed by Sebastian Skuse
+ * and further by Magnus White
  * http://www.atbar.org/
  *
  * Licensed under the BSD Licence.
@@ -16,13 +17,16 @@
 	
 		// Internal properties
 		AtKit.internal = AtKit.prototype = {
-			__version: 1.1, // Version.
-			__build: 278, // Build.
+			__version: 1.3, // Version.
+			__build: 6, // Build.
 			__APIVersion: 1.0, // The version of the API.
-			__baseURL: "http://c.atbar.org/", // Load AtKit assets from here.
+			__baseURL: "https://core.atbar.org/", // Load AtKit assets from here.
 			__APIURL: "http://a.atbar.org/", // API endpoint
-			__pluginURL: "http://plugins.atbar.org/",
-			__libURL: "http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
+			__pluginURL: "https://plugins.atbar.org/", // Plugins location
+			__faceboxURL: "https://core.atbar.org/resources/js/facebox.min.js", // Facebox JS lib
+			__libURL: "https://core.atbar.org/resources/jquery/1.8/jquery.min.js", // URL to jQuery. CDN preferred unless this is a local install.
+			//__bootstrapJsURL: "https://core.atbar.org/resources/js/bootstrap.min.js",
+			//__bootstrapCssURL: "https://core.atbar.org/resources/css/bootstrap.min.css",
 			__channel: "atkit", // Release channel we're running in for this version of AtKit.
 			__invoked: false, // Is the framework already loaded?
 			__debug: false, // Debug mode on or off.
@@ -33,7 +37,7 @@
 			__protocol: null, // HTTPS or HTTP
 			plugins:{}, // Plugins
 			localisations: {
-				"GB": {
+				"en": {	
 					"exit": "Exit",
 					"reset": "Reset webpage"
 				}
@@ -50,20 +54,20 @@
 				}
 			},
 			debugCallback: null,
-			language:'GB', // ISO 3166-1 alpha-2
-			defaultLanguage: 'GB'
+			language:'en',
+			defaultLanguage: 'en'
 		}
 	
 		AtKit.internal.__resourceURL = AtKit.internal.__baseURL;
-		AtKit.internal.__resourceURL += AtKit.internal.__channel;
-		AtKit.internal.__assetURL = AtKit.internal.__resourceURL + "/presentation/";
+		AtKit.internal.__channelURL += AtKit.internal.__channel;
+		AtKit.internal.__assetURL = AtKit.internal.__baseURL + "resources/";
 		AtKit.internal.versionString = "v" + AtKit.internal.__version.toFixed(1) + "." + AtKit.internal.__build + " (" + AtKit.internal.__channel + " release channel)";
 		
 		AtKit.internal.__aboutDialog = {
 			CSS: {
-				"#ATKFBAbout" : "font-family:Helvetica, Verdana, Arial, sans-serif;font-size:12px;color:#364365;",
-				"#ATKFBAbout h2" : "border-bottom:1px solid #DDD;font-size:16px;margin-bottom:5px;margin-top:10px;padding-bottom:5px",
-				"#ATKFBAbout p#ATKFBAboutFooter" : "border-top:1px solid #DDD;padding-top:10px;margin-top:25px;"
+				"#ATKFBAbout" : "font-family:Helvetica, Verdana, Arial, sans-serif; font-size:12px; color:#364365; direction: ltr; text-align:left",
+				"#ATKFBAbout h2" : "border-bottom:1px solid #DDD; font-size:16px; margin-bottom:5px; margin-top:10px; padding-bottom:5px; direction: ltr; text-align:left",
+				"#ATKFBAbout p#ATKFBAboutFooter" : "border-top:1px solid #DDD;p adding-top:10px; margin-top:25px;"
 			}
 		}
 		
@@ -81,24 +85,24 @@
 		var API = {
 			__env: AtKit.external, // Load public object into API accessible object
 			__templates: {
-				"barGhost": "<center><img src=\"" + AtKit.internal.__assetURL + "images/loading.gif\" style=\"margin-top:10px;\" /></center>",
+				"barGhost": "<center><img src=\"" + AtKit.internal.__assetURL + "img/loading.gif\" style=\"margin-top:10px;\" /></center>",
 				"barFailed": "<center>library loading failed</center>",
 				"button": '<div id="at-btn-(ID)" title="(TITLE)" class="at-btn"><a title="(TITLE)" id="at-lnk-(ID)" href="#ATBarLink"><img src="(SRC)" alt="(TITLE)" height="16" width="16" border="0" /></a></div>',
 				"spacer": '<div class="at-spacer"></div>',
-				"separator": '<div class="at-separator"></div>'
+				"separator": '<div class="at-separator at-separator-(ID)"></div>'
 			},
 			__CSS: {
-				"#sbar": "height:40px;left:0;line-height:40px;margin-left:auto;margin-right:auto;margin-top:0;position:fixed;top:0;width:100%;z-index:2147483646;padding:0 5px;background:url(" + AtKit.internal.__assetURL + "images/background.png) repeat-x #EBEAED;",
-				"#sbarGhost": "height:40px;width:100%;",
-				".at-spacer": "display:block;height:40px;width:40px;float:left",
-				".at-separator": "display:block;height:25px;float:left;border-left:2px solid #a9a9a9;margin:7px 1px 4px 7px",
-				".at-btn": "height:28px;width:28px;float:left;line-height:14px;text-align:center;color:#FFF;clear:none;margin:5px 0 0 5px;background:url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat",
-				".at-btn a": "display:block;height:28px;width:28px;background:transparent;position:inherit;",
+				"#sbar": "height:40px; left:0; line-height:40px; margin-left:auto; margin-right:auto; margin-top:0; position:fixed; top:0;width:100%; z-index:2147483646; padding:0 5px; background:url(" + AtKit.internal.__assetURL + "img/background.png) repeat-x #EBEAED;",
+				"#sbarGhost": "height:40px; width:100%;",
+				".at-spacer": "display:block; height:40px; width:40px; float:left",
+				".at-separator": "display:block; height:25px; float:left; border-left:2px solid #a9a9a9; margin:7px 1px 4px 7px",
+				".at-btn": "height:28px; width:28px; float:left; line-height:14px; text-align:center; color:#FFF; clear:none; margin:5px 0 0 5px;background:url(" + AtKit.internal.__assetURL + "img/button_background.png) no-repeat",
+				".at-btn a": "display:block; height:28px; width:28px; background:transparent; position:inherit;",
 				".at-btn a:active": "border:yellow solid 2px;",
-				".at-btn img": "margin:0;padding:6px;border:none;background:none;",
-				"#at-btn-atkit-reset, #at-btn-atkit-unload": "height:28px;width:28px;line-height:14px;text-align:center;color:#FFF;clear:none;float:right;margin:5px 10px 0 0;background:url(" + AtKit.internal.__assetURL + "images/button_background.png) no-repeat;",
-				"#facebox button": "height:26px;margin:10px;padding:5px;color:white;background-color:#0064CD;border-color:rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);text-shadow:0 -1px 0 rgba(0,0,0,0.25);background-image: -webkit-linear-gradient(top, #049cdb, #0064cd);border-radius:4px",
-				"#facebox h2": "font-size:18pt;font-weight:bold;color:black"
+				".at-btn img": "margin:0; padding:6px; border:none; background:none;",
+				"#at-btn-atkit-reset, #at-btn-atkit-unload": "height:28px; width:28px; line-height:14px; text-align:center; color:#FFF; clear:none; float:right; margin:5px 10px 0 0; background:url(" + AtKit.internal.__assetURL + "img/button_background.png) no-repeat;",
+				"#at-facebox button": "font-family:Helvetica Neue,Helvetica,Arial,sans-serif; height:26px; margin:10px; padding:5px; color:white; background-color:#0064CD; border-color:rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25); text-shadow:0 -1px 0 rgba(0,0,0,0.25); background-image: -webkit-linear-gradient(top, #049cdb, #0064cd); border-radius:4px",
+				"#at-facebox h2": "font-family:Helvetica Neue,Helvetica,Arial,sans-serif; font-size:18pt; font-weight:bold; color:black"
 			},
 			settings: {
 				"noiframe": true, // Don't load if we're in an iframe.
@@ -109,6 +113,7 @@
 				"name": '',
 				"about": ''
 			},
+			htmlTags: ["a","abbr","acronym","address","applet","area","article","aside","audio","b","base","basefont","bdi","bdo","big","blockquote","body","br","button","canvas","caption","center","cite","code","col","colgroup","command","datalist","dd","del","details","dfn","dir","div","dl","dt","em","embed","fieldset","figcaption","figure","font","footer","form","frame","frameset","h1","h2","h3","h4","h5","h6","head","header","hgroup","hr","html","i","iframe","img","input","ins","kbd","keygen","label","legend","li","link","map","mark","menu","meta","meter","nav","noframes","noscript","object","ol","optgroup","option","output","p","param","pre","progress","q","rp","rt","ruby","s","samp","script","section","select","small","source","span","strike","strong","style","sub","summary","sup","table","tbody","td","textarea","tfoot","th","thead","time","title","tr","track","tt","u","ul","var","video","wbr"],
 			version: AtKit.internal.__APIVersion,
 			$: '', // Library used for the Toolbar
 			plugin: function(name){ return new plugin(name); }
@@ -145,10 +150,7 @@
 				this.onRender($);
 			}
 		}
-
-		// Manipulate variables based on environment
-		preboot();
-		
+				
 		//////////////////////////////
 		// Private internal methods //
 		//////////////////////////////
@@ -191,7 +193,7 @@
 						API.$ = window.jQuery;
 						
 						// Load facebox.
-						loadFacebox();
+						//loadFacebox();
 						
 						broadcastLoaded();
 						return;
@@ -209,7 +211,11 @@
 				debug('jQuery not loaded, loading ' + newVersion);
 			}
 			// jQuery not loaded. Attach.
-			attachJS( 'atkit-jquery', AtKit.internal.__libURL );			
+			attachJS( 'atkit-jquery', AtKit.internal.__libURL );
+			
+			// load bootstrap
+			//attachJS( 'atkit-bootstrap-js', AtKit.internal.__bootstrapJsURL );
+			//attachJS( 'atkit-bootstrap-css', AtKit.internal.__bootstrapCssURL );
 			
 			// Wait for library to load.
 			waitForLib();
@@ -237,7 +243,7 @@
 				if(typeof window._$ != "undefined") window.$ = window._$;
 
 				// Load facebox.
-				loadFacebox();
+				//loadFacebox();
 				
 				// Once the document is ready broadcast ready event.
 				API.$(document).ready(function(){ broadcastLoaded(); });
@@ -245,7 +251,7 @@
 		}
 		
 		function loadFacebox(){
-			if(typeof API.$.facebox == "undefined") API.addScript(AtKit.internal.__baseURL + "atkit/facebox.min.js");
+			if(typeof API.$.facebox == "undefined") API.addScript(AtKit.internal.__faceboxURL);
 		}
 
 		function broadcastLoaded(){
@@ -313,6 +319,9 @@
 	
 		// Private function used to actually start the toolbar.
 		function start(){
+			// Load facebox.
+			loadFacebox();
+			
 			// If we're already invoked ignore.
 			if( AtKit.internal.__invoked ) return;
 			
@@ -328,21 +337,21 @@
 			
 			API.$(
 				API.$("<a>", { id: 'sbarlogo', click: function(){ showAbout() } }).append(
-					API.$("<img>", { "src": API.settings.logoURL, "align": align, "border": "0", "title": API.settings.name + "Logo", "style": "margin-top:10px;float:" + align }) 
+					API.$("<img>", { "src": API.settings.logoURL, "align": align, "border": "0", "title": API.settings.name + "Logo", "alt": API.settings.name + "Logo", "style": "margin-top:10px;float:" + align }) 
 				)
 			).appendTo('#sbar');
 			
-			API.$("<img>", { "src": AtKit.internal.__APIURL + "stat.php?channel=" + AtKit.internal.__channel + "-" + API.settings.name + "&version=" + AtKit.internal.__version.toFixed(1) + "." + AtKit.internal.__build }).appendTo("#sbar");		
+			API.$("<img>", { "src": "https://misc.services.atbar.org/stats/stat.php?channel=" + AtKit.internal.__channel + "-" + API.settings.name + "&version=" + AtKit.internal.__version.toFixed(1) + "." + AtKit.internal.__build, "alt": " " }).appendTo("#sbar");
 		
 	
 			// add the close button (if we have been told to use this)
 			if( API.settings.allowclose ){
-				API.addButton('atkit-unload', API.localisation("exit"), AtKit.internal.__assetURL + 'images/close.png', function(){ API.close(); }, null, null, {'cssClass':'fright'});
+				API.addButton('atkit-unload', API.localisation("exit"), AtKit.internal.__assetURL + 'img/close.png', function(){ API.close(); }, null, null, {'cssClass':'fright'});
 			}
 					
 			// add the reset button (if we have been told to use this)
 			if( API.settings.allowreset ){
-				API.addButton('atkit-reset', API.localisation("reset"), AtKit.internal.__assetURL + 'images/reset.png', function(){ API.reset(); }, null, null, {'cssClass':'fright'});
+				API.addButton('atkit-reset', API.localisation("reset"), AtKit.internal.__assetURL + 'img/reset.png', function(){ API.reset(); }, null, null, {'cssClass':'fright'});
 			}
 				
 			// Add buttons.
@@ -454,10 +463,8 @@
 			AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBUserSpecifiedAbout'>" + API.settings.about + "</p>";
 			
 			// Append AtKit text
-			AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBAboutFooter'>Powered by <a href='http://kit.atbar.org/'>AtKit</a> " + AtKit.internal.versionString;
+			AtKit.internal.__aboutDialog.HTML += "<p id='ATKFBAboutFooter'>Powered by AtKit " + AtKit.internal.versionString;
 
-			if(/https:/.test( getProtocol() )) AtKit.internal.__aboutDialog.HTML += "<br />Running in secure (SSL) mode";
-			
 			var plugins = API.listPlugins();
 			
 			if(plugins.length > 0){
@@ -475,26 +482,6 @@
 
 			API.message(AtKit.internal.__aboutDialog.HTML);
 			applyCSS(AtKit.internal.__aboutDialog.CSS);
-		}
-		
-		function getProtocol(){
-			if(AtKit.internal.__protocol != null) return AtKit.internal.__protocol;
-			AtKit.internal.__protocol = window.location.protocol;
-			return AtKit.internal.__protocol;
-		}
-		
-		function preboot(){
-			// If we're running in SSL mode we need to change the endpoints to the SSL endpoint otherwise we'll get a security warning.
-			var protocol = getProtocol();
-			
-			if( /https:/.test(protocol) ){
-				// Running in SSL
-				var sslServer = "https://ssl.atbar.org/";
-				AtKit.internal.__libURL = AtKit.internal.__libURL.replace("http:", protocol);
-				AtKit.internal.__baseURL = sslServer + "c/";
-				AtKit.internal.__APIURL = sslServer + "a/";
-				AtKit.internal.__pluginURL = sslServer + "plugins/"
-			}
 		}
 		
 		function debug(msg){
@@ -571,8 +558,16 @@
 			return AtKit.internal.__invoked;
 		}
 
+		API.g = function(){
+			return AtKit.internal.__resourceURL;
+		}
+		
 		API.getResourceURL = function(){
 			return AtKit.internal.__resourceURL;
+		}
+		
+		API.getChannelURL = function(){
+			return AtKit.internal.__channelURL;
 		}
 		
 		API.getPluginURL = function(){
@@ -602,7 +597,11 @@
 		API.setCSS = function(identifier, inlineStyle){
 			API.__CSS[identifier] = inlineStyle;
 		}
-
+		
+		API.getHtmlTags = function(){
+			return API.htmlTags;
+		}
+		
 		// Set whether the toolbar is running in RTL mode.
 		API.setIsRightToLeft = function(isRTL){
 			API.settings.isRightToLeft = isRTL;
@@ -699,6 +698,7 @@
 			}
 		}	
 		
+		// Adds a spacer - a gap the size of a button
 		API.addSpacer = function(width){
 			if(typeof width == "undefined"){
 				API.$(API.__templates.spacer).appendTo('#sbar');
@@ -711,11 +711,32 @@
 			}
 			applyCSS();
 		}
-
-		API.addSeparator = function(){
-			API.$(API.__templates.separator).appendTo('#sbar');
+		
+		// Adds a separator - a line between buttons
+		API.addSeparator = function(ident){
+			if(typeof ident == "undefined"){
+				ident = "separator" + Math.floor((Math.random()*999)+1);
+			}
+			
+			// Pull down the template.
+			var s = API.__templates.separator;
+			s = s.replace(/\(ID\)/ig, ident);
+			
+			// jQuery'ify
+			s = API.$(s);	
+			s.appendTo('#sbar');
 			applyCSS();
 		}
+		
+		// Remove a separator with class from the toolbar
+		API.removeSeparator = function(ident){
+			if(AtKit.internal.__invoked){
+				debug('remove separator ' + ident);				
+				API.$(".at-separator-" + ident).each(function() {
+					this.remove();
+				});				
+			}
+		}	
 
 		// Load code for plugins
 		API.importPlugins = function(plugins, callback){
